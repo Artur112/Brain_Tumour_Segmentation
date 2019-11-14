@@ -1,7 +1,9 @@
 import torch.nn as nn
 import torch
 
-#Model obtained from: pykao/Modified-3D-UNet-Pytorch
+# Model obtained from: pykao/Modified-3D-UNet-Pytorch
+
+
 class Modified3DUNet(nn.Module):
     def __init__(self, in_channels, n_classes, base_n_filter=4):
         super(Modified3DUNet, self).__init__()
