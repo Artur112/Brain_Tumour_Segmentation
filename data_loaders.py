@@ -2,13 +2,14 @@ import torch
 import numpy as np
 import os
 from torch.utils import data
-import random
+
 
 ##########################################################################
-# Dataset class that feeds data into a data generator. Takes in the paths of all folder in which a patients scans are stored, as well
-# as the names of the folders / patient ids.
+# Dataset class that feeds data into a data generator. Takes in a list of folder paths in which a patients scans are stored, as well
+# as a list of the names of the folders / patient ids.
 # Returns two torch arrays, one that contains the multi-modal scans and the other that contains the masks.
 ##########################################################################
+
 
 class Dataset(data.Dataset):
     def __init__(self, folder_path, folder_id):
