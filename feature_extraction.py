@@ -2,6 +2,8 @@ import os
 from radiomics import firstorder, shape, glcm, glszm, glrlm, ngtdm, gldm
 import numpy as np
 import SimpleITK as sitk
+import time
+from data_loaders import Dataset
 
 
 # Function to extract all the imaging features given folder_path and folder_id
@@ -90,7 +92,12 @@ for grade in os.listdir(data_path):
         folder_paths.append(os.path.join(data_path, grade, subdir))
         folder_IDS.append(subdir)
 
-for idx in range(0,1): # Loop over every image
-    features = extract_all_features(folder_paths[idx], folder_IDS[idx])
-    for (key, val) in features.items():
-        print("\t%s: %s" % (key, val))
+features = {}
+start = time.time()
+for idx in range(0, 10):#len(folder_paths)): # Loop over every image
+    features[folder_IDS[idx]] = extract_all_features(folder_paths[idx], folder_IDS[idx])
+elapsed = time.time() - start
+hours, rem = divmod(elapsed, 3600)
+minutes, seconds = divmod(rem, 60)
+for (key, val) in features.items():
+    print("\t%s: %s" % (key, val))
