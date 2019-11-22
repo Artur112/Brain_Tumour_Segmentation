@@ -28,19 +28,21 @@ class Dataset(data.Dataset):
 
         # Preprocess
         X = []
+        i = 1
         for modality in [img_t1, img_t1ce, img_t2, img_flair]:
             brain_region = modality > 0
-            #mean = np.mean(modality[brain_region])
-            #stdev = np.std(modality[brain_region])
+            mean = np.mean(modality[brain_region])
+            stdev = np.std(modality[brain_region])
             new_img = np.zeros((128,128,80))
-            #new_img[brain_region] = (modality[brain_region]-mean)/stdev
-            scaler = preprocessing.MinMaxScaler(feature_range=(0,1))
-            new_img[brain_region] = preprocessing.scale(modality[brain_region], with_mean=True,with_std=True)
-            scaler = scaler.fit(new_img)
-            new_img = scaler.transform(new_img)
+            new_img[brain_region] = (modality[brain_region] - mean)/stdev
+            new_img[new_img > 5] = 5
+            new_img[new_img < -5] = -5
+            maximum = np.max(new_img)
+            minimum = np.min(new_img[brain_region])
+            range = maximum - minimum
+            new_img = ((((new_img - minimum)/range - 0.5) * 2) + 1)/2
             X.append(new_img)
-            print(np.min(new_img), np.max(new_img))
-
+            
         X = torch.from_numpy(np.asarray(X)).float()
         y = torch.from_numpy(img_segm).long()
         return X, y
