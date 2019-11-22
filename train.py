@@ -4,7 +4,7 @@ import random
 import os
 from torch.utils import data
 from sklearn.model_selection import KFold
-from data_loaders_old import Dataset
+from data_loaders import Dataset
 from models import Modified3DUNet
 
 ##############################################
@@ -12,9 +12,9 @@ from models import Modified3DUNet
 ##############################################
 
 # Paths where to load data from and save the models to
-preprocessed_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\preprocessed_training_data'
-save_model_path = r'C:\Users\artur\Desktop\UCL\Brats2019\KFold_Cross_Validation_E2\Model_Saves'
-save_losses_path = r'C:\Users\artur\Desktop\UCL\Brats2019\KFold_Cross_Validation_E2'
+preprocessed_data_path = r'/home/artur-cmic/Desktop/Brats2019/Data/Preprocessed'
+save_model_path = r'/home/artur-cmic/Desktop/Brats2019/KFold_Validation_V2/Model_Saves'
+save_losses_path = r'/home/artur-cmic/Desktop/Brats2019/KFold_Validation_V2'
 
 # Use GPU
 use_cuda = torch.cuda.is_available()
@@ -23,19 +23,19 @@ torch.backends.cudnn.benchmark = True
 
 # Get paths and names (IDS) of folders that store the multimodal training data
 folder_paths = []
-folder_IDS = []
+folder_ids = []
 for subdir in os.listdir(preprocessed_data_path):
     folder_paths.append(os.path.join(preprocessed_data_path, subdir))
-    folder_IDS.append(subdir)
+    folder_ids.append(subdir)
 
 # Shuffle them around, keeping same seed to make sure same shuffling is used if training is interrupted and needs to be continued
 random.seed(4)
 random.shuffle(folder_paths)
 random.seed(4)
-random.shuffle(folder_IDS)
+random.shuffle(folder_ids)
 
 # Training Parameters
-batch_size = 4
+batch_size = 1
 params = {'batch_size': batch_size,
           'shuffle': True,
           'num_workers': 5}
@@ -53,11 +53,10 @@ fold_nr = 1
 
 # Training Loop
 for fold in kf.split(folder_paths):
-    # if(fold_nr>1):
     train_idx = fold[0]
     valid_idx = fold[1]
-    train_set = Dataset([folder_paths[i] for i in train_idx], [folder_IDS[i] for i in train_idx])
-    valid_set = Dataset([folder_paths[i] for i in valid_idx], [folder_IDS[i] for i in valid_idx])
+    train_set = Dataset([folder_paths[i] for i in train_idx], [folder_ids[i] for i in train_idx])
+    valid_set = Dataset([folder_paths[i] for i in valid_idx], [folder_ids[i] for i in valid_idx])
     train_loader = data.DataLoader(train_set, **params)
     valid_loader = data.DataLoader(valid_set, **params)
 
@@ -77,6 +76,7 @@ for fold in kf.split(folder_paths):
     for epoch in range(1, max_epochs + 1):
         train_losses = []
         for batch, labels in train_loader:
+            print("I am training !")
             # Transfer batch and labels to GPU
             batch, labels = batch.to(device), labels.to(device)
             output, seg_layer = model(batch)

@@ -22,8 +22,8 @@ class Dataset(data.Dataset):
     def __getitem__(self, index):
         data_folder = self.folder_paths[index]
         data_id = self.folder_ids[index]
-        X = np.load(r"{}\\{}_scans.npy".format(os.path.join(data_folder, data_id),data_id))
-        y = np.load(r"{}\\{}_mask.npy".format(os.path.join(data_folder, data_id), data_id))
+        X = np.load(r"{}/{}_scans.npy".format(data_folder,data_id))
+        y = np.load(r"{}/{}_mask.npy".format(data_folder, data_id))
         X = torch.from_numpy(X).float()
         y = torch.from_numpy(y).long()
         return X, y
