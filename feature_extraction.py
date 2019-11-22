@@ -3,7 +3,7 @@ from radiomics import firstorder, shape, glcm, glszm, glrlm, ngtdm, gldm
 import numpy as np
 import SimpleITK as sitk
 import time
-from data_loaders import Dataset
+from data_loaders_old import Dataset
 
 
 # Function to extract all the imaging features given folder_path and folder_id

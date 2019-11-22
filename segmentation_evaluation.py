@@ -1,7 +1,7 @@
 import SimpleITK as sitk
 import numpy as np
 import matplotlib.pyplot as plt
-from data_loaders import Dataset
+from data_loaders_old import Dataset
 from models import Modified3DUNet
 import os
 import torch
@@ -11,10 +11,9 @@ from enum import Enum
 data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\MICCAI_BraTS_2019_Data_Training\data'
 folder_paths = []
 folder_IDS = []
-for grade in os.listdir(data_path):
-    for subdir in os.listdir(os.path.join(data_path, grade)):
-        folder_paths.append(os.path.join(data_path, grade, subdir))
-        folder_IDS.append(subdir)
+for subdir in os.listdir(data_path):
+    folder_paths.append(os.path.join(data_path,subdir))
+    folder_IDS.append(subdir)
 
 train_set = Dataset(folder_paths, folder_IDS)
 
