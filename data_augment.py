@@ -2,13 +2,16 @@ import torch
 from random import randint
 import numpy as np
 import random
+import tkinter
 from torchvision import transforms
 import os
+import matplotlib
+matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 #x = torch.arange(128).view(4, 4, 2, 2, 2)
 #print(x.shape)
 
-x = np.load(r'C:\Users\artur\Desktop\UCL\Brats2019\Data\preprocessed_training_data_new_2\BraTS19_2013_21_1\BraTS19_2013_21_1_scans.npy')
+x = np.load(r'/home/artur-cmic/Desktop/Brats2019/Data/Preprocessed/BraTS19_2013_0_1/BraTS19_2013_0_1_scans.npy')
 #plt.imshow(x[1,:,:,40])
 #plt.show()
 #print(x.shape)
@@ -32,7 +35,7 @@ print(x.shape)
 scale_nr = random.sample([0.75, 1, 1.25], k=1)[0]
 dim = x.shape[2]
 out_dim = int(dim*scale_nr)
-x[0,:,:,:] = torch.re   (x[0,:,:,:], (out_dim, out_dim, out_dim))
+#x[0,:,:,:] = torch.reshape(x[0,:,:,:], (out_dim, out_dim, out_dim))
 print(x.shape)
 plt.imshow(x[0,:,:,60],cmap='gray')
 plt.show()
