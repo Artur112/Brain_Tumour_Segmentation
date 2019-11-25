@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4be72291-c3ea-48df-b4e2-39eebf45cc8f" name="Default Changelist" comment="Cleaned up files">
-      <change afterPath="$PROJECT_DIR$/data_loaders_old.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/preprocess.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Code.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Code.iml" afterDir="false" />
+    <list default="true" id="4be72291-c3ea-48df-b4e2-39eebf45cc8f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/data_augment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualize_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_loaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_loaders.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/feature_extraction.py" beforeDir="false" afterPath="$PROJECT_DIR$/feature_extraction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/segmentation_evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/segmentation_evaluation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocess.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -32,7 +29,7 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$/feature_extraction.py" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -46,8 +43,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.preprocess">
-    <configuration name="feature_extraction" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.data_augment">
+    <configuration name="data_augment" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -59,7 +56,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/feature_extraction.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_augment.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -131,18 +128,41 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="visualize_data" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Code" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/visualize_data.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
-      <item itemvalue="Python.feature_extraction" />
       <item itemvalue="Python.train" />
       <item itemvalue="Python.segmentation_evaluation" />
       <item itemvalue="Python.preprocess" />
+      <item itemvalue="Python.data_augment" />
+      <item itemvalue="Python.visualize_data" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.data_augment" />
+        <item itemvalue="Python.visualize_data" />
         <item itemvalue="Python.preprocess" />
         <item itemvalue="Python.segmentation_evaluation" />
         <item itemvalue="Python.train" />
-        <item itemvalue="Python.feature_extraction" />
       </list>
     </recent_temporary>
   </component>
@@ -178,7 +198,21 @@
       <option name="project" value="LOCAL" />
       <updated>1574433989630</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Wrote script that preprocesses and saves all of the preprocessed data. To be run prior to training. Made new dataset class to accomodate this.">
+      <created>1574438300730</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1574438300730</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Wrote comment better">
+      <created>1574438457157</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1574438457157</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -198,6 +232,8 @@
     <MESSAGE value="Fixed some mistakes in the training code and wrote first prototype code for feature extraction with PyRadiomics toolbox" />
     <MESSAGE value="Created function that extracts all the features from one patient's scans." />
     <MESSAGE value="Wrote code to preprocess data - normalizing by mean and standard deviation, followed by clipping any values higher or lower than 5 to remove outliers, followed by scaling the data to be in between 0 and 1. Currently written in the dataset function, but needs to be changed to preprocess and save all the model prior to training so preprocessing wouldnt have to be repeated during training." />
-    <option name="LAST_COMMIT_MESSAGE" value="Wrote code to preprocess data - normalizing by mean and standard deviation, followed by clipping any values higher or lower than 5 to remove outliers, followed by scaling the data to be in between 0 and 1. Currently written in the dataset function, but needs to be changed to preprocess and save all the model prior to training so preprocessing wouldnt have to be repeated during training." />
+    <MESSAGE value="Wrote script that preprocesses and saves all of the preprocessed data. To be run prior to training. Made new dataset class to accomodate this." />
+    <MESSAGE value="Wrote comment better" />
+    <option name="LAST_COMMIT_MESSAGE" value="Wrote comment better" />
   </component>
 </project>

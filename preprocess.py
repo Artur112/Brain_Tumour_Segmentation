@@ -2,6 +2,7 @@ import os
 from skimage.transform import resize
 import nibabel as nib
 import numpy as np
+from matplotlib import pyplot as plt
 
 ##############################################
 # Code for pre processing all of the scans, storing them in numpy arrays in the format that the 3D UNet model accepts and
@@ -10,7 +11,7 @@ import numpy as np
 
 # Specify the following two paths:
 raw_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\MICCAI_BraTS_2019_Data_Training\data'
-save_preprocessed_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\preprocessed_training_data'
+save_preprocessed_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\preprocessed_training_data_new'
 ##############################################
 
 if not os.path.isdir(save_preprocessed_data_path):
@@ -30,11 +31,11 @@ for patient in range(0,len(folder_paths)):
     os.mkdir(os.path.join(save_preprocessed_data_path, data_id))
 
     # Load in and resize the volumes
-    img_t1 = resize(nib.load(os.path.join(data_folder, data_id) + "_t1.nii.gz").get_fdata(), (128, 128, 80))
-    img_t1ce = resize(nib.load(os.path.join(data_folder, data_id) + "_t1ce.nii.gz").get_fdata(), (128, 128, 80))
-    img_t2 = resize(nib.load(os.path.join(data_folder, data_id) + "_t2.nii.gz").get_fdata(), (128, 128, 80))
-    img_flair = resize(nib.load(os.path.join(data_folder, data_id) + "_flair.nii.gz").get_fdata(), (128, 128, 80))
-    img_segm = resize(nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata(), (128, 128, 80))
+    img_t1 = resize(nib.load(os.path.join(data_folder, data_id) + "_t1.nii.gz").get_fdata(), (128, 128, 128))
+    img_t1ce = resize(nib.load(os.path.join(data_folder, data_id) + "_t1ce.nii.gz").get_fdata(), (128, 128, 128))
+    img_t2 = resize(nib.load(os.path.join(data_folder, data_id) + "_t2.nii.gz").get_fdata(), (128, 128, 128))
+    img_flair = resize(nib.load(os.path.join(data_folder, data_id) + "_flair.nii.gz").get_fdata(), (128, 128, 128))
+    img_segm = resize(nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata(), (128, 128, 128))
 
     # Preprocess
     X = []
@@ -42,7 +43,7 @@ for patient in range(0,len(folder_paths)):
         brain_region = modality > 0  # Get region of brain to only manipulate those voxels
         mean = np.mean(modality[brain_region])
         stdev = np.std(modality[brain_region])
-        new_img = np.zeros((128, 128, 80))
+        new_img = np.zeros((128, 128, 128))
         new_img[brain_region] = (modality[brain_region] - mean) / stdev  # Standardize by mean and stdev
         new_img[new_img > 5] = 5  # Clip outliers
         new_img[new_img < -5] = -5

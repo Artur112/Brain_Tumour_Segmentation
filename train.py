@@ -77,6 +77,10 @@ for fold in kf.split(folder_paths):
     for epoch in range(1, max_epochs + 1):
         train_losses = []
         for batch, labels in train_loader:
+
+            # Data augmentation
+
+            
             # Transfer batch and labels to GPU
             batch, labels = batch.to(device), labels.to(device)
             output, seg_layer = model(batch)
