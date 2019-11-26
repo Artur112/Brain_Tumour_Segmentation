@@ -7,22 +7,27 @@ import os
 from matplotlib import pyplot as plt
 import elasticdeform
 
-x = np.load(r'C:\Users\artur\Desktop\UCL\Brats2019\Data\preprocessed_training_data_new\BraTS19_CBICA_AAL_1\BraTS19_CBICA_AAL_1_scans.npy')
-y = np.load(r'C:\Users\artur\Desktop\UCL\Brats2019\Data\preprocessed_training_data_new\BraTS19_CBICA_AAL_1\BraTS19_CBICA_AAL_1_mask.npy')
+x = np.load(r'/home/artur-cmic/Desktop/Brats2019/Data/Preprocessed/BraTS19_CBICA_AAL_1/BraTS19_CBICA_AAL_1_scans.npy')
+y = np.load(r'/home/artur-cmic/Desktop/Brats2019/Data/Preprocessed/BraTS19_CBICA_AAL_1/BraTS19_CBICA_AAL_1_mask.npy')
+
+plt.subplot(2,5,1)
+plt.imshow(x[0,:,:,50], cmap='gray')
+plt.subplot(2,5,6)
+plt.imshow(y[:,:,50])
+plt.show()
 
 
 # Random elastic deformation
-if(random.random() > 0.001)
+if(random.random() > 0.001):
     brain_region = x > 0
     plt.subplot(1,2,1)
     y = np.expand_dims(y,axis=0).astype('int')
-    plt.subplot(1,2,1)
-    plt.imshow(x[0,:,:,60])
 
     sigma_nr = 2 #random.uniform(0,2.5)
     [x,y] = elasticdeform.deform_random_grid([x, y], axis=(1, 2, 3), sigma=sigma_nr, points=3) # Elastic deformation on iamges and brain mask
-    plt.subplot(1,2,2)
+    plt.subplot(2,5,2)
     plt.imshow(x[0,:,:,60])
+    plt.subplot(2,5,7)
     plt.show()
 
 
