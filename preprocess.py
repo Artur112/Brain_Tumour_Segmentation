@@ -28,7 +28,7 @@ i = 1
 for patient in range(0,len(folder_paths)):
     data_folder = folder_paths[patient]
     data_id = folder_IDS[patient]
-    os.mkdir(os.path.join(save_preprocessed_data_path, data_id))
+    #os.mkdir(os.path.join(save_preprocessed_data_path, data_id))
 
     # Load in and resize the volumes
     img_t1 = resize(nib.load(os.path.join(data_folder, data_id) + "_t1.nii.gz").get_fdata(), (128, 128, 128))
@@ -36,7 +36,7 @@ for patient in range(0,len(folder_paths)):
     img_t2 = resize(nib.load(os.path.join(data_folder, data_id) + "_t2.nii.gz").get_fdata(), (128, 128, 128))
     img_flair = resize(nib.load(os.path.join(data_folder, data_id) + "_flair.nii.gz").get_fdata(), (128, 128, 128))
     img_segm = resize(nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata(), (128, 128, 128))
-
+    print(np.unique(img_segm.astype('int')))
     # Preprocess
     X = []
     for modality in [img_t1, img_t1ce, img_t2, img_flair]:
@@ -50,10 +50,10 @@ for patient in range(0,len(folder_paths)):
         Maximum = np.max(new_img)
         Minimum = np.min(new_img[brain_region])
         Range = Maximum - Minimum
-        new_img = ((((new_img - Minimum) / Range - 0.5) * 2) + 1) / 2  # Scale to be between 0 and 1
+        new_img[brain_region] = ((((new_img[brain_region] - Minimum) / Range - 0.5) * 2) + 1) / 2  # Scale to be between 0 and 1
         X.append(new_img)
 
-    np.save("{}/{}/{}_scans.npy".format(save_preprocessed_data_path, data_id, data_id), X)
-    np.save("{}/{}/{}_mask.npy".format(save_preprocessed_data_path, data_id, data_id), img_segm)
+    #np.save("{}/{}/{}_scans.npy".format(save_preprocessed_data_path, data_id, data_id), X)
+    #np.save("{}/{}/{}_mask.npy".format(save_preprocessed_data_path, data_id, data_id), img_segm)
     print("Preprocessed patient {}/{} scans".format(i, len(folder_paths)))
     i = i + 1
