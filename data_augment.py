@@ -120,14 +120,14 @@ class DataAugment():
             #self.plot(x,y,2,6,3,6,'Rotation')
 
             # Random flip
-            if(random.random() > 0):
+            if(random.random() > 0.5):
                 #start = time.time()
                 x,y = self.flip(x,y)
                 #compute_times['Flip'] = time.time()-start
             #self.plot(x,y,2,6,4,6,'Flip')
 
             # Random gamma correction
-            if(random.random() > 0):
+            if(random.random() > 0.5):
                 #start = time.time()
                 x = self.gamma_correction(x)
                 #compute_times['Gamma Correction'] = time.time()-start
@@ -140,7 +140,7 @@ class DataAugment():
 
         # Random scaling
         start = time.time()
-        if (random.random() > 0):
+        if (random.random() > 0.5):
             self.scans, self.mask = self.scale(self.scans, self.mask)
             #compute_times['Scaling'] = time.time() - start
         #self.plot(self.scans[0], self.mask, 2, 6, 6, 6, 'Scaling')

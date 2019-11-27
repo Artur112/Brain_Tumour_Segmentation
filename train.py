@@ -5,6 +5,7 @@ import os
 from torch.utils import data
 from sklearn.model_selection import KFold
 from data_loaders import Dataset
+from data_augment import DataAugment
 from models import Modified3DUNet
 
 ##############################################
@@ -76,7 +77,11 @@ for fold in kf.split(folder_paths):
     for epoch in range(1, max_epochs + 1):
         train_losses = []
         for batch, labels in train_loader:
-            print("I am training !")
+
+            # Data Augment
+            augmenter = DataAugment(batch,labels)
+            batch,labels = augmenter.augment()
+
             # Transfer batch and labels to GPU
             batch, labels = batch.to(device), labels.to(device)
             output, seg_layer = model(batch)
@@ -100,15 +105,15 @@ for fold in kf.split(folder_paths):
         valid_loss_ep = np.mean(valid_losses)
 
         # Save the training and validation losses to file
-        losses_file = open("{}/KFold_Losses.txt".format(save_losses_path), "a")
-        losses_file.write("Fold_{}_Epoch_{}_Train_{:.4f}_Valid_{:.4f}\n".format(fold_nr, epoch, train_loss_ep, valid_loss_ep))
-        losses_file.close()
+        #losses_file = open("{}/KFold_Losses.txt".format(save_losses_path), "a")
+        #losses_file.write("Fold_{}_Epoch_{}_Train_{:.4f}_Valid_{:.4f}\n".format(fold_nr, epoch, train_loss_ep, valid_loss_ep))
+        #losses_file.close()
 
         print('Fold [{}/{}], Epoch [{}/{}], Train Loss: {:.4f}, Valid Loss {:.4f}'.format(fold_nr, n_folds, epoch, max_epochs, train_loss_ep, valid_loss_ep))
 
         # Save the model parameters
-        if (epoch % 5 == 0):
-            torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()},
-                       "{}/Fold_{}_Epoch_{}.tar".format(save_model_path, fold_nr, epoch))
+        #if (epoch % 5 == 0):
+        #    torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()},
+        #               "{}/Fold_{}_Epoch_{}.tar".format(save_model_path, fold_nr, epoch))
 
     fold_nr = fold_nr + 1
