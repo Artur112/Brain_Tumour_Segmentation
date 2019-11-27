@@ -5,8 +5,6 @@ import random
 from matplotlib import pyplot as plt
 import elasticdeform
 import time
-import os
-import sys
 
 ###################################################################################
 # Data augmentation code to be run during training. Input in the form x=[B,C,H,W,D], y = [B,H,W,D] where x is the batch of preprocessed
