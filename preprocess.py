@@ -51,6 +51,8 @@ for patient in range(0,len(folder_paths)):
     img_segm[img_segm == 4] = 3
     img_segm = resize(img_segm, output_size, preserve_range=True, anti_aliasing=True).astype('long')
 
+    print(np.unique(img_segm))
+
     # Preprocess
     X = []
     for modality in [img_t1, img_t1ce, img_t2, img_flair]:
@@ -65,8 +67,8 @@ for patient in range(0,len(folder_paths)):
         Minimum = np.min(new_img[brain_region])
         Range = Maximum - Minimum
         new_img[brain_region] = ((((new_img[brain_region] - Minimum) / Range - 0.5) * 2) + 1) / 2  # Scale to be between 0 and 1
-        X.append(new_img)
-    print(np.unique(img_segm))
+        X.append(new_img.astype('float32'))
+
     np.save("{}/{}/{}_scans.npy".format(save_preprocessed_data_path, data_id, data_id), X)
     np.save("{}/{}/{}_mask.npy".format(save_preprocessed_data_path, data_id, data_id), img_segm.astype('long'))
     print("Preprocessed patient {}/{} scans".format(i, len(folder_paths)))

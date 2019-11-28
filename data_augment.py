@@ -79,7 +79,7 @@ class DataAugment():
         return X,Y
 
     def gamma_correction(self,X):
-        gamma = random.uniform(0.5, 2.5)  # Random gamma value by which to correct
+        gamma = random.uniform(0.5, 1.5)  # Random gamma value by which to correct
         X = torch.pow(X, gamma)
 
         return X
