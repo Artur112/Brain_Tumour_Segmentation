@@ -45,7 +45,7 @@ max_epochs = 100
 # Model Parameters
 in_channels = 4
 n_classes = 4
-base_n_filter = 16
+base_n_filter = 8
 
 # Setup KFold Cross Validation
 n_folds = 5  # Number of folds in cross-validation
@@ -72,24 +72,26 @@ for fold in kf.split(folder_paths):
     # model.load_state_dict(checkpoint['model_state_dict'])
     # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     model.to(device)
-    # model.train()
+    #model.train()
 
     for epoch in range(1, max_epochs + 1):
         train_losses = []
         for batch, labels in train_loader:
+            print(np.unique(labels.numpy()))
 
-            # Data Augment
-            augmenter = DataAugment(batch,labels)
-            batch,labels = augmenter.augment()
 
-            # Transfer batch and labels to GPU
-            batch, labels = batch.to(device), labels.to(device)
-            output, seg_layer = model(batch)
-            train_loss = criterion(output, labels.view(-1))
-            optimizer.zero_grad()
-            train_loss.backward()
-            optimizer.step()
-            train_losses.append(train_loss.item())
+        # Data Augment
+        augmenter = DataAugment(batch,labels)
+        batch,labels = augmenter.augment()
+
+        # Transfer batch and labels to GPU
+        batch, labels = batch.to(device), labels.to(device)
+        output, seg_layer = model(batch)
+        train_loss = criterion(output, labels.view(-1))
+        optimizer.zero_grad()
+        train_loss.backward()
+        optimizer.step()
+        train_losses.append(train_loss.item())
 
         # Get training loss after every epoch
         train_loss_ep = np.mean(train_losses)

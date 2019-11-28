@@ -33,14 +33,17 @@ class DataAugment():
         brain_region = (X > 0).astype('float') * 10 # Multiplying by 10 so there would be a bigger difference between foreground and background pixels to avoid voxels
                                                     # being assigned the wrong label after the elastic deformation
 
-        #Split the labels and deform them separately, as if done together together they'll get mixed up. 10 multiplication again.
+        #Split the labels and deform them separately, as if done together together they'll get mixed up. 10 times multiplication again.
         lbl1 = (Y == 1) * 10.0
         lbl2 = (Y == 2) * 10.0
         lbl3 = (Y == 3) * 10.0
         lbl4 = (Y == 4) * 10.0
 
-        sigma_nr = random.uniform(0, 4) # Random factor by which to deform - not too high
-        [X, brain_region, lbl1, lbl2, lbl3, lbl4] = elasticdeform.deform_random_grid([X, brain_region, lbl1, lbl2, lbl3, lbl4], axis=(1, 2, 3), sigma=sigma_nr, points=3)
+        sigma_nr = random.uniform(0, 5) # Random factor by which to deform - not too high
+        deform_axes = tuple(sorted(random.sample([1,2,3], k = 2))) # Random two axes in which to deform. Two to save on computational time. Need to sort the array as axis
+        #variable requires sorted input
+
+        [X, brain_region, lbl1, lbl2, lbl3, lbl4] = elasticdeform.deform_random_grid([X, brain_region, lbl1, lbl2, lbl3, lbl4], axis=deform_axes, sigma=sigma_nr, points=3)
 
         brain_region = brain_region.astype('int') > 0
         X = X * brain_region # To make sure background pixels remain 0 in the scans
@@ -49,7 +52,7 @@ class DataAugment():
         lbl2 = lbl2.astype('int') > 0
         lbl3 = lbl3.astype('int') > 0
         lbl4 = lbl4.astype('int') > 0
-        Y = np.zeros((128, 128, 128))
+        Y = np.zeros((128, 128, 128), dtype='long')
         Y = np.expand_dims(Y, axis=0)
         i = 1
         for lbls in [lbl1, lbl2, lbl3, lbl4]:
@@ -86,10 +89,10 @@ class DataAugment():
         in_dim = X.shape[2]
         out_dim = int(in_dim * scale_nr) # New size to scale to
         Y = torch.unsqueeze(Y, 0).float()
-        X = torch.nn.functional.interpolate(X, (out_dim, out_dim, out_dim), mode='trilinear').float()
+        X = torch.nn.functional.interpolate(X, (out_dim, out_dim, out_dim), mode='trilinear')
         Y = torch.nn.functional.interpolate(Y, (out_dim, out_dim, out_dim), mode='trilinear')
         Y = torch.squeeze(Y, 0).long()
-        print(Y.shape)
+
         return X, Y
 
     def augment(self):
@@ -105,30 +108,30 @@ class DataAugment():
 
             # Random elastic deformation
             if(random.random() > 0.5):
-                #start = time.time()
+            #   start = time.time()
                 x, y = self.elastic_deform(x, y)
-                #compute_times['Elastic Deformation'] = time.time()-start
+            #   compute_times['Elastic Deformation'] = time.time()-start
             #self.plot(x,y,2,6,2,6,'Elastic Deformation')
 
             # Random rotation
             if(random.random() > 0.5):
-                #start = time.time()
+            #   start = time.time()
                 x,y = self.rotate(x,y)
-                #compute_times['Rotation'] = time.time()-start
+            #   compute_times['Rotation'] = time.time()-start
             #self.plot(x,y,2,6,3,6,'Rotation')
 
             # Random flip
             if(random.random() > 0.5):
-                #start = time.time()
+            #    start = time.time()
                 x,y = self.flip(x,y)
-                #compute_times['Flip'] = time.time()-start
+            #    compute_times['Flip'] = time.time()-start
             #self.plot(x,y,2,6,4,6,'Flip')
 
             # Random gamma correction
             if(random.random() > 0.5):
-                #start = time.time()
+            #   start = time.time()
                 x = self.gamma_correction(x)
-                #compute_times['Gamma Correction'] = time.time()-start
+            #    compute_times['Gamma Correction'] = time.time()-start
             #self.plot(x,y,2,6,5,6,'Gamma Correction')
 
             y = torch.squeeze(y, 0)
@@ -137,8 +140,8 @@ class DataAugment():
             self.mask[person] = y
 
         # Random scaling
-        start = time.time()
         if (random.random() > 0.5):
+            #start = time.time()
             self.scans, self.mask = self.scale(self.scans, self.mask)
             #compute_times['Scaling'] = time.time() - start
         #self.plot(self.scans[0], self.mask, 2, 6, 6, 6, 'Scaling')

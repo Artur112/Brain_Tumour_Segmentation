@@ -1,5 +1,7 @@
 import os
 from skimage.transform import resize
+from scipy.ndimage import zoom
+#import scipy.misc.imresize as resize
 import nibabel as nib
 import numpy as np
 import sys
@@ -42,7 +44,12 @@ for patient in range(0,len(folder_paths)):
     img_t1ce = resize(nib.load(os.path.join(data_folder, data_id) + "_t1ce.nii.gz").get_fdata(), output_size)
     img_t2 = resize(nib.load(os.path.join(data_folder, data_id) + "_t2.nii.gz").get_fdata(), output_size)
     img_flair = resize(nib.load(os.path.join(data_folder, data_id) + "_flair.nii.gz").get_fdata(), output_size)
-    img_segm = resize(nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata(), output_size)
+    img_segm = nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata().astype('long')
+
+    # Segmentation Mask has labels 0,1,2,4. Will change these to 0,1,2,3, as otherwise the resize function will preserve the range and output will have labels 0,1,2,3,4, adding
+    # an extra label.
+    img_segm[img_segm == 4] = 3
+    img_segm = resize(img_segm, output_size, preserve_range=True, anti_aliasing=True).astype('long')
 
     # Preprocess
     X = []
@@ -59,8 +66,8 @@ for patient in range(0,len(folder_paths)):
         Range = Maximum - Minimum
         new_img[brain_region] = ((((new_img[brain_region] - Minimum) / Range - 0.5) * 2) + 1) / 2  # Scale to be between 0 and 1
         X.append(new_img)
-
+    print(np.unique(img_segm))
     np.save("{}/{}/{}_scans.npy".format(save_preprocessed_data_path, data_id, data_id), X)
-    np.save("{}/{}/{}_mask.npy".format(save_preprocessed_data_path, data_id, data_id), img_segm.astype('int'))
+    np.save("{}/{}/{}_mask.npy".format(save_preprocessed_data_path, data_id, data_id), img_segm.astype('long'))
     print("Preprocessed patient {}/{} scans".format(i, len(folder_paths)))
     i = i + 1

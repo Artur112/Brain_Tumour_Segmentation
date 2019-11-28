@@ -30,5 +30,6 @@ class Dataset(data.Dataset):
 
         X = torch.from_numpy(np.asarray([img_t1, img_t1ce, img_t2, img_flair])).float()
         y = torch.from_numpy(img_segm).long()
+        #print(np.unique(y.numpy()))
         return X, y
 

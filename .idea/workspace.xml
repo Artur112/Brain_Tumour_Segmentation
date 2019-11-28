@@ -2,10 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4be72291-c3ea-48df-b4e2-39eebf45cc8f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/data_augment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/visualize_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Code.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Code.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_augment.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_augment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_loaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_loaders.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_loaders_old.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_loaders_old.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocess.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
@@ -28,8 +30,8 @@
   <component name="ProjectId" id="1TTdVttyC1KJ40LObbZFbQZzgC4" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/feature_extraction.py" />
-    <property name="settings.editor.selected.configurable" value="Errors" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -43,7 +45,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.data_augment">
+  <component name="RunManager" selected="Python.preprocess">
     <configuration name="data_augment" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -158,11 +160,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.preprocess" />
+        <item itemvalue="Python.train" />
         <item itemvalue="Python.data_augment" />
         <item itemvalue="Python.visualize_data" />
-        <item itemvalue="Python.preprocess" />
         <item itemvalue="Python.segmentation_evaluation" />
-        <item itemvalue="Python.train" />
       </list>
     </recent_temporary>
   </component>
@@ -212,7 +214,28 @@
       <option name="project" value="LOCAL" />
       <updated>1574438457157</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Finished first prototype code for data augmentation">
+      <created>1574865711829</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1574865711829</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Finished first prototype code for data augmentation">
+      <created>1574865743574</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1574865743574</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Finished first prototype code for data augmentation - elastic deformation needs to be made much faster">
+      <created>1574876628614</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1574876628614</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -234,6 +257,8 @@
     <MESSAGE value="Wrote code to preprocess data - normalizing by mean and standard deviation, followed by clipping any values higher or lower than 5 to remove outliers, followed by scaling the data to be in between 0 and 1. Currently written in the dataset function, but needs to be changed to preprocess and save all the model prior to training so preprocessing wouldnt have to be repeated during training." />
     <MESSAGE value="Wrote script that preprocesses and saves all of the preprocessed data. To be run prior to training. Made new dataset class to accomodate this." />
     <MESSAGE value="Wrote comment better" />
-    <option name="LAST_COMMIT_MESSAGE" value="Wrote comment better" />
+    <MESSAGE value="Finished first prototype code for data augmentation" />
+    <MESSAGE value="Finished first prototype code for data augmentation - elastic deformation needs to be made much faster" />
+    <option name="LAST_COMMIT_MESSAGE" value="Finished first prototype code for data augmentation - elastic deformation needs to be made much faster" />
   </component>
 </project>
