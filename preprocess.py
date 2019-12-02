@@ -1,5 +1,6 @@
 import os
 from skimage.transform import resize
+#import cv2
 from scipy.ndimage import zoom
 #import scipy.misc.imresize as resize
 import nibabel as nib
@@ -49,9 +50,14 @@ for patient in range(0,len(folder_paths)):
     # Segmentation Mask has labels 0,1,2,4. Will change these to 0,1,2,3, as otherwise the resize function will preserve the range and output will have labels 0,1,2,3,4, adding
     # an extra label.
     img_segm[img_segm == 4] = 3
-    img_segm = resize(img_segm, output_size, preserve_range=True, anti_aliasing=True).astype('long')
+    lbl1 = resize((img_segm == 1)*10, output_size, preserve_range=True, anti_aliasing=True)
+    lbl2 = resize((img_segm == 2)*10, output_size, preserve_range=True, anti_aliasing=True)
+    lbl3 = resize((img_segm == 3)*10, output_size, preserve_range=True, anti_aliasing=True)
 
-    print(np.unique(img_segm))
+    img_segm = np.zeros(output_size)
+    img_segm[lbl1 > 1] = 1
+    img_segm[lbl2 > 1] = 2
+    img_segm[lbl3 > 1] = 3
 
     # Preprocess
     X = []
