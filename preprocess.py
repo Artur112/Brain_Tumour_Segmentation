@@ -1,8 +1,5 @@
 import os
 from skimage.transform import resize
-#import cv2
-from scipy.ndimage import zoom
-#import scipy.misc.imresize as resize
 import nibabel as nib
 import numpy as np
 import sys
@@ -47,14 +44,14 @@ for patient in range(0,len(folder_paths)):
     img_flair = resize(nib.load(os.path.join(data_folder, data_id) + "_flair.nii.gz").get_fdata(), output_size)
     img_segm = nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata().astype('long')
 
-    # Segmentation Mask has labels 0,1,2,4. Will change these to 0,1,2,3, as otherwise the resize function will preserve the range and output will have labels 0,1,2,3,4, adding
-    # an extra label.
+    # Segmentation Mask has labels 0,1,2,4. Will change these to 0,1,2,3. Perform resizing on the labels separately
+    # and then combine them afterwards.
     img_segm[img_segm == 4] = 3
     lbl1 = resize((img_segm == 1)*10, output_size, preserve_range=True, anti_aliasing=True)
     lbl2 = resize((img_segm == 2)*10, output_size, preserve_range=True, anti_aliasing=True)
     lbl3 = resize((img_segm == 3)*10, output_size, preserve_range=True, anti_aliasing=True)
 
-    img_segm = np.zeros(output_size)
+    img_segm = np.zeros(output_size).astype('long')
     img_segm[lbl1 > 1] = 1
     img_segm[lbl2 > 1] = 2
     img_segm[lbl3 > 1] = 3
@@ -76,6 +73,6 @@ for patient in range(0,len(folder_paths)):
         X.append(new_img.astype('float32'))
 
     np.save("{}/{}/{}_scans.npy".format(save_preprocessed_data_path, data_id, data_id), X)
-    np.save("{}/{}/{}_mask.npy".format(save_preprocessed_data_path, data_id, data_id), img_segm.astype('long'))
+    np.save("{}/{}/{}_mask.npy".format(save_preprocessed_data_path, data_id, data_id), img_segm)
     print("Preprocessed patient {}/{} scans".format(i, len(folder_paths)))
     i = i + 1

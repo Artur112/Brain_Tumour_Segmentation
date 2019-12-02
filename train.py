@@ -77,7 +77,6 @@ for fold in kf.split(folder_paths):
     for epoch in range(1, max_epochs + 1):
         train_losses = []
         for batch, labels in train_loader:
-
             # Data Augment
             augmenter = DataAugment(batch,labels)
             batch,labels = augmenter.augment()
