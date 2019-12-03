@@ -57,10 +57,11 @@ for patient in range(len(folder_paths)):
     lbl2 = resize((img_segm == 2)*10, output_size, preserve_range=True, anti_aliasing=True)
     lbl3 = resize((img_segm == 3)*10, output_size, preserve_range=True, anti_aliasing=True)
 
-    # Remove uncertain pixels at the edges of a label area before merging labels. Essentially remove pixels with class belonging confidence of < 30%
-    lbl1[lbl1 < 3] = 0
-    lbl2[lbl2 < 3] = 0
-    lbl3[lbl3 < 3] = 0
+    # Remove uncertain pixels at the edges of a label area before merging labels. Essentially remove pixels with class belonging confidence of < 30%.
+    # Made equal to -1 instead of 0, just to make sure that the background pixels are always assigned label 0 with argmax.
+    lbl1[lbl1 < 3] = -1
+    lbl2[lbl2 < 3] = -1
+    lbl3[lbl3 < 3] = -1
 
     # Merge labels by taking argmax of label values - for a pixel that belongs to two classes after resize, assign to the class
     # that its value is highest for. Adding np.zeros to the first dimension so np.argmax would give 1 for label 1 and not 0.

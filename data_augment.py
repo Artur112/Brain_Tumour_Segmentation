@@ -31,33 +31,26 @@ class DataAugment():
         X = X.numpy()
         Y = Y.numpy()
         brain_region = (X > 0).astype('float') * 10 # Multiplying by 10 so there would be a bigger difference between foreground and background pixels to avoid voxels
-                                                    # being assigned the wrong label after the elastic deformation
+        # being assigned the wrong label after the elastic deformation
 
         #Split the labels and deform them separately, as if done together together they'll get mixed up. 10 times multiplication again.
         lbl1 = (Y == 1) * 10.0
         lbl2 = (Y == 2) * 10.0
         lbl3 = (Y == 3) * 10.0
-        lbl4 = (Y == 4) * 10.0
-
-        sigma_nr = random.uniform(0, 5) # Random factor by which to deform - not too high
+        sigma_nr = random.uniform(0, 7) # Random factor by which to deform - not too high
         deform_axes = tuple(sorted(random.sample([1,2,3], k = 2))) # Random two axes in which to deform. Two to save on computational time. Need to sort the array as axis
         #variable requires sorted input
 
-        [X, brain_region, lbl1, lbl2, lbl3, lbl4] = elasticdeform.deform_random_grid([X, brain_region, lbl1, lbl2, lbl3, lbl4], axis=deform_axes, sigma=sigma_nr, points=3)
+        [X, brain_region, lbl1, lbl2, lbl3] = elasticdeform.deform_random_grid([X, brain_region, lbl1, lbl2, lbl3], axis=deform_axes, sigma=sigma_nr, points=3)
 
         brain_region = brain_region.astype('int') > 0
         X = X * brain_region # To make sure background pixels remain 0 in the scans
-        X[X<0] = 0
-        lbl1 = lbl1.astype('int') > 0
-        lbl2 = lbl2.astype('int') > 0
-        lbl3 = lbl3.astype('int') > 0
-        lbl4 = lbl4.astype('int') > 0
-        Y = np.zeros((128, 128, 128), dtype='long')
-        Y = np.expand_dims(Y, axis=0)
-        i = 1
-        for lbls in [lbl1, lbl2, lbl3, lbl4]:
-            Y[lbls] = i
-            i = i + 1
+        X[X<0] = 0 # Remove any negative values - background values close 0
+
+        lbl1[lbl1 < 3] = 0
+        lbl2[lbl2 < 3] = 0
+        lbl3[lbl3 < 3] = 0
+        Y = np.argmax([np.zeros((self.batch_size, 128, 128, 128)), lbl1, lbl2, lbl3], axis=0).astype('long')
         X = torch.from_numpy(X)
         Y = torch.from_numpy(Y)
 
@@ -88,11 +81,23 @@ class DataAugment():
         scale_nr = random.sample([0.50, 0.75, 1, 1.25, 1.5], k=1)[0]  # Random scale by which to change image size
         in_dim = X.shape[2]
         out_dim = int(in_dim * scale_nr) # New size to scale to
-        Y = torch.unsqueeze(Y, 0).float()
+        # Scale labels separately again
+        Y = torch.unsqueeze(Y, 0)
+        lbl1 = (Y == 1) * 10.0
+        lbl2 = (Y == 2) * 10.0
+        lbl3 = (Y == 3) * 10.0
         X = torch.nn.functional.interpolate(X, (out_dim, out_dim, out_dim), mode='trilinear')
-        Y = torch.nn.functional.interpolate(Y, (out_dim, out_dim, out_dim), mode='trilinear')
-        Y = torch.squeeze(Y, 0).long()
-
+        lbl1 = torch.nn.functional.interpolate(lbl1, (out_dim, out_dim, out_dim), mode='trilinear')
+        lbl2 = torch.nn.functional.interpolate(lbl2, (out_dim, out_dim, out_dim), mode='trilinear')
+        lbl3 = torch.nn.functional.interpolate(lbl3, (out_dim, out_dim, out_dim), mode='trilinear')
+        lbl1 = lbl1.squeeze(0)
+        lbl2 = lbl2.squeeze(0)
+        lbl3 = lbl3.squeeze(0)
+        lbl1[lbl1 < 3] = -1
+        lbl2[lbl2 < 3] = -1
+        lbl3[lbl3 < 3] = -1
+        _, Y = torch.stack([torch.zeros(self.batch_size,out_dim, out_dim, out_dim), lbl1, lbl2, lbl3],dim=0).max(0)
+        Y = Y.long()
         return X, Y
 
     def augment(self):
@@ -145,7 +150,6 @@ class DataAugment():
             self.scans, self.mask = self.scale(self.scans, self.mask)
             #compute_times['Scaling'] = time.time() - start
         #self.plot(self.scans[0], self.mask, 2, 6, 6, 6, 'Scaling')
-        #plt.subplots_adjust(wspace=0.1, hspace=0.1)
 
         #for key, value in compute_times.items():
         #    print(key, ' : ', value, ' s')
