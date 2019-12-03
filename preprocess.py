@@ -6,23 +6,26 @@ import sys
 from matplotlib import pyplot as plt
 
 ##############################################
-# Code for pre processing all of the scans, storing them in numpy arrays in the format that the 3D UNet model accepts and
-# saving all of these to disk. Done such that the preprocessing and image resizing steps wouldn't be repeated during training,
-# thereby speeding up the training process. Assumes the data stored in raw_data_path are in two folders: HGG and LGG.
+# Code for preprocessing all of the scans and storing them in numpy arrays. Done so that the preprocessing and image resizing steps
+# wouldn't be repeated during training, thereby speeding up the training process. Assumes the data stored in raw_data_path are in two folders: HGG and LGG.
 
-# Specify the following two paths:
-raw_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\MICCAI_BraTS_2019_Data_Training\data'
-#raw_data_path = r"/home/artur-cmic/Desktop/Brats2019/Data/Training_Data"
+# INPUT:
+#raw_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\MICCAI_BraTS_2019_Data_Training\data'
+raw_data_path = r"/home/artur-cmic/Desktop/Brats2019/Data/Training_Data"
 #save_preprocessed_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\preprocessed_training_data_new'
-#save_preprocessed_data_path = r"/home/artur-cmic/Desktop/Brats2019/Data/Preprocessed"
+save_preprocessed_data_path = r"/home/artur-cmic/Desktop/Brats2019/Data/Preprocessed"
+
+# OUTPUT: Preprocessed data stored in numpy arrays in the save_preprocessed_path
 ##############################################
 
-#if not os.path.isdir(save_preprocessed_data_path):
-#    os.mkdir(save_preprocessed_data_path)
-#else:
-#    print("Folder already exists !")
-#    sys.exit()
+# Create folder to store preprocessed data in, exit if folder already exists.
+if not os.path.isdir(save_preprocessed_data_path):
+    os.mkdir(save_preprocessed_data_path)
+else:
+    print("Folder already exists !")
+    sys.exit()
 
+#Get folder paths and ids of where the raw scans are stored
 folder_paths = []
 folder_IDS = []
 for grade in os.listdir(raw_data_path):
@@ -31,48 +34,39 @@ for grade in os.listdir(raw_data_path):
         folder_IDS.append(subdir)
 
 i = 1
-for patient in range(10,len(folder_paths)):
+for patient in range(len(folder_paths)):
     data_folder = folder_paths[patient]
     data_id = folder_IDS[patient]
-    #os.mkdir(os.path.join(save_preprocessed_data_path, data_id))
+    os.mkdir(os.path.join(save_preprocessed_data_path, data_id))
 
     output_size = (128,128,128) # Size to change images to
 
-    # Load in and resize the volumes
+    # Load in and resize the mri images
     img_t1 = resize(nib.load(os.path.join(data_folder, data_id) + "_t1.nii.gz").get_fdata(), output_size)
     img_t1ce = resize(nib.load(os.path.join(data_folder, data_id) + "_t1ce.nii.gz").get_fdata(), output_size)
     img_t2 = resize(nib.load(os.path.join(data_folder, data_id) + "_t2.nii.gz").get_fdata(), output_size)
     img_flair = resize(nib.load(os.path.join(data_folder, data_id) + "_flair.nii.gz").get_fdata(), output_size)
+
+    # Load in labels
     img_segm = nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata().astype('long')
-
-    # Segmentation Mask has labels 0,1,2,4. Will change these to 0,1,2,3. Perform resizing on the labels separately
-    # and then combine them afterwards.
+    # Segmentation Mask has labels 0,1,2,4. Will change these to 0,1,2,3 and perform resizing on the labels separately
+    # Combine them afterwards. Multiplication of labels by 10 so difference between label and background pixel would be
+    # greater, otherwise resize wont work properly.
     img_segm[img_segm == 4] = 3
-    lbl1 = resize((img_segm == 1), output_size, preserve_range=True, anti_aliasing=True)
-    lbl2 = resize((img_segm == 2), output_size, preserve_range=True, anti_aliasing=True)
-    lbl3 = resize((img_segm == 3), output_size, preserve_range=True, anti_aliasing=True)
-    plt.imshow(lbl1[:,:,80])
-    img_segm = np.zeros(output_size).astype('long')
-    lbl1 = lbl1 > 1
-    lbl2 = lbl2 > 1
-    lbl3 = lbl3 > 1
+    lbl1 = resize((img_segm == 1)*10, output_size, preserve_range=True, anti_aliasing=True)
+    lbl2 = resize((img_segm == 2)*10, output_size, preserve_range=True, anti_aliasing=True)
+    lbl3 = resize((img_segm == 3)*10, output_size, preserve_range=True, anti_aliasing=True)
 
-    plt.subplot(1,3,1)
-    plt.imshow(lbl1[:,:,80])
-    plt.subplot(1,3,2)
-    plt.imshow(lbl2[:,:,80])
-    plt.subplot(1,3,3)
-    plt.imshow(lbl3[:,:,80])
-    plt.show()
-    sys.exit()
+    # Remove uncertain pixels at the edges of a label area before merging labels. Essentially remove pixels with class belonging confidence of < 30%
+    lbl1[lbl1 < 3] = 0
+    lbl2[lbl2 < 3] = 0
+    lbl3[lbl3 < 3] = 0
 
-    img_segm[lbl1 > 1] = 0.1
-    img_segm[lbl2 > 1] = 0.2
-    img_segm[lbl3 > 1] = 0.3
+    # Merge labels by taking argmax of label values - for a pixel that belongs to two classes after resize, assign to the class
+    # that its value is highest for. Adding np.zeros to the first dimension so np.argmax would give 1 for label 1 and not 0.
+    img_segm = np.argmax(np.asarray([np.zeros(output_size),lbl1, lbl2, lbl3]),axis=0).astype('long')
 
-
-
-    # Preprocess
+    # Preprocess mri volumes
     X = []
     for modality in [img_t1, img_t1ce, img_t2, img_flair]:
         brain_region = modality > 0  # Get region of brain to only manipulate those voxels
