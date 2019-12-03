@@ -36,7 +36,7 @@ random.seed(4)
 random.shuffle(folder_ids)
 
 # Training Parameters
-batch_size = 1
+batch_size = 2
 params = {'batch_size': batch_size,
           'shuffle': True,
           'num_workers': 5}
@@ -104,15 +104,15 @@ for fold in kf.split(folder_paths):
         valid_loss_ep = np.mean(valid_losses)
 
         # Save the training and validation losses to file
-        #losses_file = open("{}/KFold_Losses.txt".format(save_losses_path), "a")
-        #losses_file.write("Fold_{}_Epoch_{}_Train_{:.4f}_Valid_{:.4f}\n".format(fold_nr, epoch, train_loss_ep, valid_loss_ep))
-        #losses_file.close()
+        losses_file = open("{}/KFold_Losses.txt".format(save_losses_path), "a")
+        losses_file.write("Fold_{}_Epoch_{}_TrainAvg_{:.4f}_ValidAvg_{:.4f}_TrainLast_{:.4f}_ValidLast_{:.4f}\n".format(fold_nr, epoch, train_loss_ep, valid_loss_ep, train_loss.item(), valid_loss.item()))
+        losses_file.close()
 
         print('Fold [{}/{}], Epoch [{}/{}], Train Loss: {:.4f}, Valid Loss {:.4f}'.format(fold_nr, n_folds, epoch, max_epochs, train_loss_ep, valid_loss_ep))
 
         # Save the model parameters
-        #if (epoch % 5 == 0):
-        #    torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()},
-        #               "{}/Fold_{}_Epoch_{}.tar".format(save_model_path, fold_nr, epoch))
+        if (epoch % 1 == 0):
+            torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()},
+                       "{}/Fold_{}_Epoch_{}.tar".format(save_model_path, fold_nr, epoch))
 
     fold_nr = fold_nr + 1

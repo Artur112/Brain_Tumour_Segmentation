@@ -1,5 +1,4 @@
 import torch
-from random import randint
 import numpy as np
 import random
 from matplotlib import pyplot as plt
@@ -47,17 +46,17 @@ class DataAugment():
         X = X * brain_region # To make sure background pixels remain 0 in the scans
         X[X<0] = 0 # Remove any negative values - background values close 0
 
-        lbl1[lbl1 < 3] = 0
-        lbl2[lbl2 < 3] = 0
-        lbl3[lbl3 < 3] = 0
-        Y = np.argmax([np.zeros((self.batch_size, 128, 128, 128)), lbl1, lbl2, lbl3], axis=0).astype('long')
+        lbl1[lbl1 < 3] = -1
+        lbl2[lbl2 < 3] = -1
+        lbl3[lbl3 < 3] = -1
+        Y = np.argmax([np.zeros((1, 128, 128, 128)), lbl1, lbl2, lbl3], axis=0).astype('long')
         X = torch.from_numpy(X)
         Y = torch.from_numpy(Y)
 
         return X,Y
 
     def rotate(self,X,Y):
-        rotate_nr = randint(0, 3)  # Number of times to rotate
+        rotate_nr = random.randint(0, 3)  # Number of times to rotate
         rotate_dir = random.sample([1, 2, 3], k=2)  # Direction of axis in which to rotate
         X = torch.rot90(X, rotate_nr, rotate_dir)
         Y = torch.rot90(Y, rotate_nr, rotate_dir)
