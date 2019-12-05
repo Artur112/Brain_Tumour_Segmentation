@@ -1,9 +1,7 @@
 import torch
 import numpy as np
 import random
-from matplotlib import pyplot as plt
 import elasticdeform
-import time
 
 ###################################################################################
 # Data augmentation code to be run during training. Input in the form x=[B,C,H,W,D], y = [B,H,W,D] where x is the batch of preprocessed
@@ -15,16 +13,6 @@ class DataAugment():
         self.scans = x
         self.mask = y
         self.batch_size = x.shape[0]
-
-    def plot(self,x,y,dim1, dim2, i, dif, titlee):
-        slc = 80
-        if(x.shape[2] != 128):
-            slc = int(((80/128)*x.shape[2]))
-        plt.subplot(dim1,dim2,i)
-        plt.title(titlee)
-        plt.imshow(x[0,:,:,slc],cmap='gray')
-        plt.subplot(dim1,dim2,i+dif)
-        plt.imshow(y[0,:,:,slc])
 
     def elastic_deform(self,X,Y):
         X = X.numpy()
@@ -107,36 +95,22 @@ class DataAugment():
             y = self.mask[person]
             y = torch.unsqueeze(y,0)  # As x is in 4D, make y 4D too so the scans and the labels can be inputted together to the various functions
 
-            #self.plot(x,y,2,6,1,6,'Original')
-            #compute_times = {}
 
             # Random elastic deformation
             if(random.random() > 0.5):
-            #   start = time.time()
                 x, y = self.elastic_deform(x, y)
-            #   compute_times['Elastic Deformation'] = time.time()-start
-            #self.plot(x,y,2,6,2,6,'Elastic Deformation')
 
             # Random rotation
             if(random.random() > 0.5):
-            #   start = time.time()
                 x,y = self.rotate(x,y)
-            #   compute_times['Rotation'] = time.time()-start
-            #self.plot(x,y,2,6,3,6,'Rotation')
 
             # Random flip
             if(random.random() > 0.5):
-            #    start = time.time()
                 x,y = self.flip(x,y)
-            #    compute_times['Flip'] = time.time()-start
-            #self.plot(x,y,2,6,4,6,'Flip')
 
             # Random gamma correction
             if(random.random() > 0.5):
-            #   start = time.time()
                 x = self.gamma_correction(x)
-            #    compute_times['Gamma Correction'] = time.time()-start
-            #self.plot(x,y,2,6,5,6,'Gamma Correction')
 
             y = torch.squeeze(y, 0)
 
@@ -145,14 +119,6 @@ class DataAugment():
 
         # Random scaling
         if (random.random() > 0.5):
-            #start = time.time()
             self.scans, self.mask = self.scale(self.scans, self.mask)
-            #compute_times['Scaling'] = time.time() - start
-        #self.plot(self.scans[0], self.mask, 2, 6, 6, 6, 'Scaling')
-
-        #for key, value in compute_times.items():
-        #    print(key, ' : ', value, ' s')
-
-        #plt.show()
 
         return self.scans, self.mask

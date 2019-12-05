@@ -70,14 +70,14 @@ for fold in kf.split(folder_paths):
     # Load model and optimizer parameters if the training was interrupted and must be continued - need to also change epoch range in for loop
     # checkpoint = torch.load("/content/drive/My Drive/Brats2019/Model_Saves_KFold/Fold_1_Epoch_30_Train_Loss_0.0140_Valid_Loss_0.0137.tar")
     # model.load_state_dict(checkpoint['model_state_dict'])
-    # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     model.to(device)
+    # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     #model.train()
 
     for epoch in range(1, max_epochs + 1):
         train_losses = []
         for batch, labels in train_loader:
-            # Data Augment
+            # Data Augment  
             augmenter = DataAugment(batch,labels)
             batch,labels = augmenter.augment()
 
