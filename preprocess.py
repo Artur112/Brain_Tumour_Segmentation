@@ -11,9 +11,9 @@ from matplotlib import pyplot as plt
 
 # INPUT:
 #raw_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\MICCAI_BraTS_2019_Data_Training\data'
-raw_data_path = r"/home/artur-cmic/Desktop/Brats2019/Data/Training_Data"
+raw_data_path = r"/home/artur-cmic/Desktop/UCL/Brats2019/Data/MICCAI_BraTS_2019_Data_Training/data"
 #save_preprocessed_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\preprocessed_training_data_new'
-save_preprocessed_data_path = r"/home/artur-cmic/Desktop/Brats2019/Data/Preprocessed"
+save_preprocessed_data_path = r"/home/artur-cmic/Desktop/UCL/Brats2019/Data/Preprocessed"
 
 # OUTPUT: Preprocessed data stored in numpy arrays in the save_preprocessed_path
 ##############################################
@@ -22,7 +22,7 @@ save_preprocessed_data_path = r"/home/artur-cmic/Desktop/Brats2019/Data/Preproce
 if not os.path.isdir(save_preprocessed_data_path):
     os.mkdir(save_preprocessed_data_path)
 else:
-    print("Folder already exists !")
+    print("Folder already exists, please specify a new save path!")
     sys.exit()
 
 #Get folder paths and ids of where the raw scans are stored

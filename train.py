@@ -13,9 +13,9 @@ from models import Modified3DUNet
 ##############################################
 
 # Paths where to load data from and save the models to
-preprocessed_data_path = r'/home/artur-cmic/Desktop/Brats2019/Data/Preprocessed'
-save_model_path = r'/home/artur-cmic/Desktop/Brats2019/KFold_Validation_V2/Model_Saves'
-save_losses_path = r'/home/artur-cmic/Desktop/Brats2019/KFold_Validation_V2'
+preprocessed_data_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Data/Preprocessed'
+save_model_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/KFold_Validation_V2/Model_Saves'
+save_losses_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/KFold_Validation_V2'
 
 # Use GPU
 use_cuda = torch.cuda.is_available()
@@ -36,7 +36,7 @@ random.seed(4)
 random.shuffle(folder_ids)
 
 # Training Parameters
-batch_size = 2
+batch_size = 1
 params = {'batch_size': batch_size,
           'shuffle': True,
           'num_workers': 5}
@@ -74,7 +74,7 @@ for fold in kf.split(folder_paths):
     # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     #model.train()
 
-    for epoch in range(1, max_epochs + 1):
+    for epoch in range(1, 2):#max_epochs + 1):
         train_losses = []
         for batch, labels in train_loader:
             # Data Augment  
@@ -89,6 +89,7 @@ for fold in kf.split(folder_paths):
             train_loss.backward()
             optimizer.step()
             train_losses.append(train_loss.item())
+            print("training")
 
         # Get training loss after every epoch
         train_loss_ep = np.mean(train_losses)

@@ -1,16 +1,14 @@
-import json
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
+import numpy as np
 
-# Load features from saved JSON file
 
-with open('features.json') as json_file:
-    data = json.load(json_file)
+
 
 train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size = 0.25, random_state = 42)
 
-rf = RandomForestRegressor(n_estimators = 1000, random_state = 42)
-rf.fit(train_features, train_labels);
+rf = RandomForestClassifier(n_estimators = 1000, random_state = 42)
+rf.fit(train_features, train_labels)
 
 predictions = rf.predict(test_features)
 errors = abs(predictions - test_labels)

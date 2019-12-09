@@ -5,8 +5,18 @@ import SimpleITK as sitk
 import time
 from models import Modified3DUNet
 import torch
-import json
+import pandas as pd
 
+###################################################################
+# Code for extracting all imaging features from preprocessed training set and saving them in a csv file, along with the
+# age and survival outcome inserted at the last two columns.
+
+# To specify - path where the preprocessed mri scans are stored, path where to load model from for obtaining segmentations
+# and path of survival data csv file
+mri_data_path = r"/home/artur-cmic/Desktop/UCL/Brats2019/Data/Preprocessed"
+model_path = "pretrained_models/Fold_1_Epoch_100.tar"
+survival_data_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Data/MICCAI_BraTS_2019_Data_Training/survival_data.csv'
+####################################################################
 
 # Function to extract all the imaging features given folder_path and folder_id of a person
 def extract_features(folder_path, folder_id):
@@ -22,12 +32,14 @@ def extract_features(folder_path, folder_id):
     _, mask = model(scans)
     mask = torch.squeeze(mask,0)
     _, mask = mask.max(0)
-    enhancing = (mask == 1).cpu().detach().numpy().astype('long')
-    edema = (mask == 1).cpu().detach().numpy().astype('long')
-    ncr_nenhancing = (mask == 3).cpu().detach().numpy().astype('long')
+    mask = mask.cpu().detach().numpy()
+    enhancing = (mask == 3).astype('long')
+    edema = (mask == 2).astype('long')
+    ncr_nenhancing = (mask == 1).astype('long')
+    whole_tumor = (mask > 0).astype('long')
 
     regions = {'edema': {'mask': edema, 'modality': flair_img}, 'enhancing': {'mask': enhancing, 'modality': t1ce_img},
-               'ncr_nenhancing': {'mask':ncr_nenhancing, 'modality': t1ce_img}}
+               'ncr_nenhancing': {'mask':ncr_nenhancing, 'modality': t1ce_img}, 'whole_tumor': {'mask':whole_tumor, 'modality':t1ce_img}}
 
     # Convert the region arrays into SITK image objects so they can be inputted to the PyRadiomics featureextractor functions.
     all_features = {}
@@ -87,19 +99,16 @@ def extract_features(folder_path, folder_id):
                 all_features[region_name + '_' + key] = val
         else:
             if(not printed):
-                print(folder_id)
+                #print(folder_id)
                 printed = 1
     return all_features
 
 
-# Path where to load the data from
-data_path = r"/home/artur-cmic/Desktop/Brats2019/Data/Preprocessed"
-
 # Get paths and names (IDS) of folders that store the preprocessed data for each example
 folder_paths = []
 folder_ids = []
-for subdir in os.listdir(data_path):
-    folder_paths.append(os.path.join(data_path, subdir))
+for subdir in os.listdir(mri_data_path):
+    folder_paths.append(os.path.join(mri_data_path, subdir))
     folder_ids.append(subdir)
 
 # Load Model for getting segmentations with it
@@ -113,23 +122,50 @@ n_classes = 4
 base_n_filter = 16
 
 model = Modified3DUNet(in_channels, n_classes, base_n_filter)
-checkpoint = torch.load("pretrained_models/Fold_1_Epoch_54.tar")
+checkpoint = torch.load(model_path)
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(device)
 model.eval()
 
 features = {}
 start = time.time()
-for idx in range(0,1):# len(folder_paths)): # Loop over every person,
+for idx in range(0, len(folder_paths)): # Loop over every person,
     features[folder_ids[idx]] = extract_features(folder_paths[idx], folder_ids[idx])
+    print("Extracted features from person {}/{}".format(idx + 1, len(folder_paths)))
+
 
 elapsed = time.time() - start
 hours, rem = divmod(elapsed, 3600)
 minutes, seconds = divmod(rem, 60)
-print("Extracting Features took {} min {} s".format(minutes,seconds))
+print("Extracting Features took {} min {} s".format(minutes, seconds))
 
-#with open('features.json', 'w') as fp:
-#    json.dump(features, fp)
+features = pd.DataFrame.from_dict(features, orient='index')
 
-for (key, val) in features[folder_ids[0]].items():
-    print("\t%s: %s" % (key, val))
+surv_data = pd.read_csv(survival_data_path, index_col=0)
+
+# Get indices of rows which to keep in training data - those that have NaN or Alive values for survival should be removed
+to_keep = surv_data['Survival'].str.isdigit()
+to_keep[to_keep.isnull()] = False
+to_keep = to_keep.astype('bool')
+to_keep = to_keep.keys()[to_keep.values]  # Keep these data entries
+
+ages = surv_data['Age'][to_keep].astype('float')  # Only get ages of people who to keep in training data
+surv = surv_data['Survival'][to_keep].astype('float')
+
+# Convert survival data in days to categories of less than 10month survival, 10<x<15 months and > 15 months
+surv = surv/31
+surv[surv < 10] = 0
+surv[(surv >= 10) & (surv < 15)] = 1
+surv[surv >= 15] = 2
+surv = surv.astype('int')
+
+features = features.loc[to_keep]
+features['Age'] = ages[features.index]
+features['Survival'] = surv[features.index]
+
+features.to_csv('features.csv')
+
+print("Saved Features to file")
+
+
+

@@ -1,2 +1,4 @@
 .idea
 venv
+pretrained_models
+features.csv
