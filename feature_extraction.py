@@ -129,7 +129,7 @@ model.eval()
 
 features = {}
 start = time.time()
-for idx in range(0, len(folder_paths)): # Loop over every person,
+for idx in range(0, len(folder_paths)):  # Loop over every person,
     features[folder_ids[idx]] = extract_features(folder_paths[idx], folder_ids[idx])
     print("Extracted features from person {}/{}".format(idx + 1, len(folder_paths)))
 
@@ -139,8 +139,7 @@ hours, rem = divmod(elapsed, 3600)
 minutes, seconds = divmod(rem, 60)
 print("Extracting Features took {} min {} s".format(minutes, seconds))
 
-features = pd.DataFrame.from_dict(features, orient='index')
-
+features = pd.DataFrame.from_dict(features, orient='index').astype('float')
 surv_data = pd.read_csv(survival_data_path, index_col=0)
 
 # Get indices of rows which to keep in training data - those that have NaN or Alive values for survival should be removed
@@ -166,6 +165,5 @@ features['Survival'] = surv[features.index]
 features.to_csv('features.csv')
 
 print("Saved Features to file")
-
 
 
