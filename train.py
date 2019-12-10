@@ -7,15 +7,24 @@ from sklearn.model_selection import KFold
 from data_loaders import Dataset
 from data_augment import DataAugment
 from models import Modified3DUNet
+import torch.nn as nn
+import time
 
 ##############################################
 # Code for training the Modified3DUnet model obtained from pykao/Modified-3D-UNet-Pytorch on Github.
 ##############################################
 
 # Paths where to load data from and save the models to
-preprocessed_data_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Data/Preprocessed'
-save_model_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/KFold_Validation_V2/Model_Saves'
-save_losses_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/KFold_Validation_V2'
+#preprocessed_data_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Data/Preprocessed'
+#save_model_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/KFold_Validation_V2/Model_Saves'
+#save_losses_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/KFold_Validation_V2'
+
+preprocessed_data_path = r'/home/ajurgens/Brats2019/Data/Preprocessed'
+save_model_path = r'/home/ajurgens/Brats2019/Model_Saves_With_DataAug'
+save_losses_path = r'/home/ajurgens/Brats2019/'
+
+if not os.path.isdir(save_model_path):
+    os.mkdir(save_model_path)
 
 # Use GPU
 use_cuda = torch.cuda.is_available()
@@ -36,11 +45,11 @@ random.seed(4)
 random.shuffle(folder_ids)
 
 # Training Parameters
-batch_size = 1
+batch_size = 2
 params = {'batch_size': batch_size,
           'shuffle': True,
           'num_workers': 5}
-max_epochs = 100
+max_epochs = 200
 
 # Model Parameters
 in_channels = 4
@@ -63,6 +72,9 @@ for fold in kf.split(folder_paths):
 
     # Model
     model = Modified3DUNet(in_channels, n_classes, base_n_filter)
+    if torch.cuda.device_count() > 1:
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model = nn.DataParallel(model)
     # Loss and optimizer
     criterion = torch.nn.CrossEntropyLoss().to(device)
     optimizer = torch.optim.Adam(model.parameters())
@@ -74,7 +86,7 @@ for fold in kf.split(folder_paths):
     # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     #model.train()
 
-    for epoch in range(1, 2):#max_epochs + 1):
+    for epoch in range(1, max_epochs + 1):
         train_losses = []
         for batch, labels in train_loader:
             # Data Augment  
@@ -89,7 +101,6 @@ for fold in kf.split(folder_paths):
             train_loss.backward()
             optimizer.step()
             train_losses.append(train_loss.item())
-            print("training")
 
         # Get training loss after every epoch
         train_loss_ep = np.mean(train_losses)
@@ -105,15 +116,14 @@ for fold in kf.split(folder_paths):
         valid_loss_ep = np.mean(valid_losses)
 
         # Save the training and validation losses to file
-        losses_file = open("{}/KFold_Losses.txt".format(save_losses_path), "a")
-        losses_file.write("Fold_{}_Epoch_{}_TrainAvg_{:.4f}_ValidAvg_{:.4f}_TrainLast_{:.4f}_ValidLast_{:.4f}\n".format(fold_nr, epoch, train_loss_ep, valid_loss_ep, train_loss.item(), valid_loss.item()))
+        losses_file = open("{}/KFold_Losses_DataAug.txt".format(save_losses_path), "a")
+        losses_file.write("Fold_{}_Epoch_{}_TrainAvg_{:.4f}_ValidAvg_{:.4f}_TrainLast_{:.4f}_ValidLast_{:.4f}_Time_{}\n".format(fold_nr, epoch, train_loss_ep, valid_loss_ep, train_loss.item(), valid_loss.item(), time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
         losses_file.close()
 
         print('Fold [{}/{}], Epoch [{}/{}], Train Loss: {:.4f}, Valid Loss {:.4f}'.format(fold_nr, n_folds, epoch, max_epochs, train_loss_ep, valid_loss_ep))
 
         # Save the model parameters
-        if (epoch % 1 == 0):
+        if (epoch % 20 == 0):
             torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()},
                        "{}/Fold_{}_Epoch_{}.tar".format(save_model_path, fold_nr, epoch))
-
     fold_nr = fold_nr + 1

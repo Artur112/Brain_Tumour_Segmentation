@@ -33,6 +33,7 @@ def extract_features(folder_path, folder_id):
     mask = torch.squeeze(mask,0)
     _, mask = mask.max(0)
     mask = mask.cpu().detach().numpy()
+    nr_classes = len(np.unique(mask))
     enhancing = (mask == 3).astype('long')
     edema = (mask == 2).astype('long')
     ncr_nenhancing = (mask == 1).astype('long')
@@ -44,11 +45,9 @@ def extract_features(folder_path, folder_id):
     # Convert the region arrays into SITK image objects so they can be inputted to the PyRadiomics featureextractor functions.
     all_features = {}
     printed = 0
-    for (region_name, images) in regions.items():
-
-        lbl_img = sitk.GetImageFromArray(images['mask'])
-        if len(np.unique(images['mask'])) > 1:
-
+    if nr_classes == 4:
+        for (region_name, images) in regions.items():
+            lbl_img = sitk.GetImageFromArray(images['mask'])
             # Get First order features
             firstorderfeatures = firstorder.RadiomicsFirstOrder(images['modality'], lbl_img)
             firstorderfeatures.enableAllFeatures()  # On the feature class level, all features are disabled by default
@@ -97,11 +96,9 @@ def extract_features(folder_path, folder_id):
             gldmfeatures.execute()
             for (key, val) in gldmfeatures.featureValues.items():
                 all_features[region_name + '_' + key] = val
-        else:
-            if(not printed):
-                #print(folder_id)
-                printed = 1
-    return all_features
+    else:
+        print(folder_id)
+    return all_features, nr_classes
 
 
 # Get paths and names (IDS) of folders that store the preprocessed data for each example
@@ -129,11 +126,15 @@ model.eval()
 
 features = {}
 start = time.time()
+not_seg = 0
 for idx in range(0, len(folder_paths)):  # Loop over every person,
-    features[folder_ids[idx]] = extract_features(folder_paths[idx], folder_ids[idx])
+    feat, nr_cl = extract_features(folder_paths[idx], folder_ids[idx])
+    if nr_cl == 4:
+        features[folder_ids[idx]] = feat
+    else:
+        not_seg += 1
     print("Extracted features from person {}/{}".format(idx + 1, len(folder_paths)))
-
-
+print("{} not segmented".format(not_seg))
 elapsed = time.time() - start
 hours, rem = divmod(elapsed, 3600)
 minutes, seconds = divmod(rem, 60)
@@ -142,21 +143,17 @@ print("Extracting Features took {} min {} s".format(minutes, seconds))
 features = pd.DataFrame.from_dict(features, orient='index').astype('float')
 surv_data = pd.read_csv(survival_data_path, index_col=0)
 
+# First immediately only keep survival data for people that the features were calculated for
+surv_data = surv_data.loc[features.index]
+
 # Get indices of rows which to keep in training data - those that have NaN or Alive values for survival should be removed
 to_keep = surv_data['Survival'].str.isdigit()
-to_keep[to_keep.isnull()] = False
+to_keep[to_keep.isnull()] = False # Make empty/Nan values equal to False too
 to_keep = to_keep.astype('bool')
 to_keep = to_keep.keys()[to_keep.values]  # Keep these data entries
 
 ages = surv_data['Age'][to_keep].astype('float')  # Only get ages of people who to keep in training data
 surv = surv_data['Survival'][to_keep].astype('float')
-
-# Convert survival data in days to categories of less than 10month survival, 10<x<15 months and > 15 months
-surv = surv/31
-surv[surv < 10] = 0
-surv[(surv >= 10) & (surv < 15)] = 1
-surv[surv >= 15] = 2
-surv = surv.astype('int')
 
 features = features.loc[to_keep]
 features['Age'] = ages[features.index]
