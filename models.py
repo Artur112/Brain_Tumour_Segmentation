@@ -189,7 +189,7 @@ class Modified3DUNet(nn.Module):
         out = out_pred + ds1_ds2_sum_upscale_ds3_sum_upscale
         seg_layer = out
         out = out.permute(0, 2, 3, 4, 1).contiguous().view(-1, self.n_classes)
-
+        out = self.softmax(out)  # Do not apply with Cross Entropy Loss ! Only with Dice Loss
         return out, seg_layer
 
 ###################################################################################################################################################

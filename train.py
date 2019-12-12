@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import numpy as np
 import random
 import os
@@ -9,6 +10,7 @@ from data_augment import DataAugment
 from models import Modified3DUNet
 import torch.nn as nn
 import time
+from losses import DiceLoss
 
 ##############################################
 # Code for training the Modified3DUnet model obtained from pykao/Modified-3D-UNet-Pytorch on Github.
@@ -16,11 +18,11 @@ import time
 
 # Paths where to load data from and save the models to
 #preprocessed_data_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Data/Preprocessed'
-#save_model_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/KFold_Validation_V2/Model_Saves'
-#save_losses_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/KFold_Validation_V2'
+#save_model_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/KFold_Validation_V3/Model_Saves'
+#save_losses_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/KFold_Validation_V3'
 
 preprocessed_data_path = r'/home/ajurgens/Brats2019/Data/Preprocessed'
-save_model_path = r'/home/ajurgens/Brats2019/Model_Saves_With_DataAug'
+save_model_path = r'/home/ajurgens/Brats2019/Model_Saves_V4'
 save_losses_path = r'/home/ajurgens/Brats2019/'
 
 if not os.path.isdir(save_model_path):
@@ -45,11 +47,11 @@ random.seed(4)
 random.shuffle(folder_ids)
 
 # Training Parameters
-batch_size = 2
+batch_size = 1
 params = {'batch_size': batch_size,
           'shuffle': True,
           'num_workers': 5}
-max_epochs = 200
+max_epochs = 125
 
 # Model Parameters
 in_channels = 4
@@ -76,7 +78,8 @@ for fold in kf.split(folder_paths):
         print("Let's use", torch.cuda.device_count(), "GPUs!")
         model = nn.DataParallel(model)
     # Loss and optimizer
-    criterion = torch.nn.CrossEntropyLoss().to(device)
+    #criterion = torch.nn.CrossEntropyLoss().to(device) # For cross entropy
+    criterion = DiceLoss() # For dice loss
     optimizer = torch.optim.Adam(model.parameters())
 
     # Load model and optimizer parameters if the training was interrupted and must be continued - need to also change epoch range in for loop
@@ -85,18 +88,22 @@ for fold in kf.split(folder_paths):
     model.to(device)
     # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     #model.train()
-
     for epoch in range(1, max_epochs + 1):
+        start_time = time.time()
         train_losses = []
         for batch, labels in train_loader:
-            # Data Augment  
-            augmenter = DataAugment(batch,labels)
-            batch,labels = augmenter.augment()
-
+            # Data Augment
+            #augmenter = DataAugment(batch,labels)
+            #batch,labels = augmenter.augment()
             # Transfer batch and labels to GPU
             batch, labels = batch.to(device), labels.to(device)
             output, seg_layer = model(batch)
-            train_loss = criterion(output, labels.view(-1))
+            labels = labels.view(-1)
+            labels = nn.functional.one_hot(labels, num_classes=4) # For dice loss
+            labels = labels.view(-1) # For dice loss
+            output = output.view(-1) # For dice loss
+            train_loss = criterion.apply(output, labels) # For dice loss
+            #train_loss = criterion(output,labels) # For cross entropy
             optimizer.zero_grad()
             train_loss.backward()
             optimizer.step()
@@ -111,19 +118,23 @@ for fold in kf.split(folder_paths):
             for batch, labels in valid_loader:
                 batch, labels = batch.to(device), labels.to(device)
                 output, seg_layer = model(batch)
-                valid_loss = criterion(output, labels.view(-1))
+                labels = labels.view(-1)
+                labels = nn.functional.one_hot(labels, num_classes=4) # For dice loss
+                labels = labels.view(-1) # For dice loss
+                output = output.view(-1) # For dice loss
+                valid_loss = criterion.apply(output, labels) # For dice loss
+                #valid_loss = criterion(output, labels) # For cross entropy
                 valid_losses.append(valid_loss.item())
         valid_loss_ep = np.mean(valid_losses)
-
+        elapsed_time = time.time() - start_time
         # Save the training and validation losses to file
-        losses_file = open("{}/KFold_Losses_DataAug.txt".format(save_losses_path), "a")
+        losses_file = open("{}/KFold_Losses_V4.txt".format(save_losses_path), "a")
         losses_file.write("Fold_{}_Epoch_{}_TrainAvg_{:.4f}_ValidAvg_{:.4f}_TrainLast_{:.4f}_ValidLast_{:.4f}_Time_{}\n".format(fold_nr, epoch, train_loss_ep, valid_loss_ep, train_loss.item(), valid_loss.item(), time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
         losses_file.close()
 
-        print('Fold [{}/{}], Epoch [{}/{}], Train Loss: {:.4f}, Valid Loss {:.4f}'.format(fold_nr, n_folds, epoch, max_epochs, train_loss_ep, valid_loss_ep))
+        #print('Fold [{}/{}], Epoch [{}/{}], Train Loss: {:.4f}, Valid Loss {:.4f}, Time_{}'.format(fold_nr, n_folds, epoch, max_epochs, train_loss_ep, valid_loss_ep, time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
 
         # Save the model parameters
-        if (epoch % 20 == 0):
-            torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()},
-                       "{}/Fold_{}_Epoch_{}.tar".format(save_model_path, fold_nr, epoch))
+        if (epoch % 25 == 0):
+            torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()}, "{}/Fold_{}_Epoch_{}.tar".format(save_model_path, fold_nr, epoch))
     fold_nr = fold_nr + 1
