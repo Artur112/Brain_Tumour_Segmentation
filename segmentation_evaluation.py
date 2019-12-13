@@ -9,7 +9,6 @@ import random
 from sklearn.model_selection import KFold
 from collections import OrderedDict
 import pandas as pd
-from pandas.plotting import table
 
 
 ##################################################################################################################################
