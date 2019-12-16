@@ -10,27 +10,29 @@ from matplotlib import pyplot as plt
 # wouldn't be repeated during training, thereby speeding up the training process. Assumes the data stored in raw_data_path are in two folders: HGG and LGG.
 
 # INPUT:
-#raw_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\MICCAI_BraTS_2019_Data_Training\data'
-raw_data_path = r"/home/artur-cmic/Desktop/UCL/Brats2019/Data/MICCAI_BraTS_2019_Data_Training/data"
-#save_preprocessed_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\preprocessed_training_data_new'
-save_preprocessed_data_path = r"/home/artur-cmic/Desktop/UCL/Brats2019/Data/Preprocessed"
-
+raw_data_path = r'C:\Users\artur\Desktop\UCL\Brats2019\Data\MICCAI_BraTS_2019_Data_Validation\data'
+# raw_data_path = r"/home/artur-cmic/Desktop/UCL/Brats2019/Data/MICCAI_BraTS_2019_Data_Training/data"
+save_preprocessed_data_path = r'C:/Users/artur/Desktop/UCL/Brats2019/Data/Preprocessed_Validation'
+# save_preprocessed_data_path = r"/home/artur-cmic/Desktop/UCL/Brats2019/Data/Preprocessed"
+train_data = False  # Specify whether to preprocess Brats training or valid data
 # OUTPUT: Preprocessed data stored in numpy arrays in the save_preprocessed_path
 ##############################################
 
 # Create folder to store preprocessed data in, exit if folder already exists.
 if not os.path.isdir(save_preprocessed_data_path):
     os.mkdir(save_preprocessed_data_path)
-else:
-    print("Folder already exists, please specify a new save path!")
-    sys.exit()
 
-#Get folder paths and ids of where the raw scans are stored
+# Get folder paths and ids of where the raw scans are stored
 folder_paths = []
 folder_IDS = []
-for grade in os.listdir(raw_data_path):
-    for subdir in os.listdir(os.path.join(raw_data_path, grade)):
-        folder_paths.append(os.path.join(raw_data_path, grade, subdir))
+if train_data:
+    for grade in os.listdir(raw_data_path):
+        for subdir in os.listdir(os.path.join(raw_data_path, grade)):
+            folder_paths.append(os.path.join(raw_data_path, grade, subdir))
+            folder_IDS.append(subdir)
+else:
+    for subdir in os.listdir(raw_data_path):
+        folder_paths.append(os.path.join(raw_data_path, subdir))
         folder_IDS.append(subdir)
 
 i = 1
@@ -47,25 +49,26 @@ for patient in range(len(folder_paths)):
     img_t2 = resize(nib.load(os.path.join(data_folder, data_id) + "_t2.nii.gz").get_fdata(), output_size)
     img_flair = resize(nib.load(os.path.join(data_folder, data_id) + "_flair.nii.gz").get_fdata(), output_size)
 
-    # Load in labels
-    img_segm = nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata().astype('long')
-    # Segmentation Mask has labels 0,1,2,4. Will change these to 0,1,2,3 and perform resizing on the labels separately
-    # Combine them afterwards. Multiplication of labels by 10 so difference between label and background pixel would be
-    # greater, otherwise resize wont work properly.
-    img_segm[img_segm == 4] = 3
-    lbl1 = resize((img_segm == 1)*10, output_size, preserve_range=True, anti_aliasing=True)
-    lbl2 = resize((img_segm == 2)*10, output_size, preserve_range=True, anti_aliasing=True)
-    lbl3 = resize((img_segm == 3)*10, output_size, preserve_range=True, anti_aliasing=True)
+    if train_data:
+        # Load in labels
+        img_segm = nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata().astype('long')
+        # Segmentation Mask has labels 0,1,2,4. Will change these to 0,1,2,3 and perform resizing on the labels separately
+        # Combine them afterwards. Multiplication of labels by 10 so difference between label and background pixel would be
+        # greater, otherwise resize wont work properly.
+        img_segm[img_segm == 4] = 3
+        lbl1 = resize((img_segm == 1)*10, output_size, preserve_range=True, anti_aliasing=True)
+        lbl2 = resize((img_segm == 2)*10, output_size, preserve_range=True, anti_aliasing=True)
+        lbl3 = resize((img_segm == 3)*10, output_size, preserve_range=True, anti_aliasing=True)
 
-    # Remove uncertain pixels at the edges of a label area before merging labels. Essentially remove pixels with class belonging confidence of < 30%.
-    # Made equal to -1 instead of 0, just to make sure that the background pixels are always assigned label 0 with argmax.
-    lbl1[lbl1 < 3] = -1
-    lbl2[lbl2 < 3] = -1
-    lbl3[lbl3 < 3] = -1
+        # Remove uncertain pixels at the edges of a label area before merging labels. Essentially remove pixels with class belonging confidence of < 30%.
+        # Made equal to -1 instead of 0, just to make sure that the background pixels are always assigned label 0 with argmax.
+        lbl1[lbl1 < 3] = -1
+        lbl2[lbl2 < 3] = -1
+        lbl3[lbl3 < 3] = -1
 
-    # Merge labels by taking argmax of label values - for a pixel that belongs to two classes after resize, assign to the class
-    # that its value is highest for. Adding np.zeros to the first dimension so np.argmax would give 1 for label 1 and not 0.
-    img_segm = np.argmax(np.asarray([np.zeros(output_size),lbl1, lbl2, lbl3]),axis=0).astype('long')
+        # Merge labels by taking argmax of label values - for a pixel that belongs to two classes after resize, assign to the class
+        # that its value is highest for. Adding np.zeros to the first dimension so np.argmax would give 1 for label 1 and not 0.
+        img_segm = np.argmax(np.asarray([np.zeros(output_size),lbl1, lbl2, lbl3]),axis=0).astype('long')
 
     # Preprocess mri volumes
     X = []
@@ -84,6 +87,7 @@ for patient in range(len(folder_paths)):
         X.append(new_img.astype('float32'))
 
     np.save("{}/{}/{}_scans.npy".format(save_preprocessed_data_path, data_id, data_id), X)
-    np.save("{}/{}/{}_mask.npy".format(save_preprocessed_data_path, data_id, data_id), img_segm)
+    if train_data:
+        np.save("{}/{}/{}_mask.npy".format(save_preprocessed_data_path, data_id, data_id), img_segm)
     print("Preprocessed patient {}/{} scans".format(i, len(folder_paths)))
     i = i + 1

@@ -3,8 +3,8 @@ from torch.utils import data
 
 
 ##########################################################################
-# Dataset class that feeds data into a data generator. Takes in a list of folder paths in which a patients scans are stored, as well
-# as a list of the names of the folders / patient ids.
+# Dataset class that feeds data into a data generator. Takes in a list of folder paths in which a patient's scans are stored,
+# a list of the names of the folder / patient ids and whether segmentation labels are provided and should be loaded.
 # Returns two torch arrays, one that contains the multi-modal scans and the other that contains the masks.
 ##########################################################################
 
