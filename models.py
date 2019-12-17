@@ -5,8 +5,9 @@ import torch
 
 
 class Modified3DUNet(nn.Module):
-    def __init__(self, in_channels, n_classes, base_n_filter=4):
+    def __init__(self, in_channels, n_classes, base_n_filter=4, dice_loss=True):
         super(Modified3DUNet, self).__init__()
+        self.dice_loss = dice_loss
         self.in_channels = in_channels
         self.n_classes = n_classes
         self.base_n_filter = base_n_filter
@@ -189,7 +190,8 @@ class Modified3DUNet(nn.Module):
         out = out_pred + ds1_ds2_sum_upscale_ds3_sum_upscale
         seg_layer = out
         out = out.permute(0, 2, 3, 4, 1).contiguous().view(-1, self.n_classes)
-        out = self.softmax(out)  # Do not apply with Cross Entropy Loss ! Only with Dice Loss
+        if self.dice_loss:
+            out = self.softmax(out)
         return out, seg_layer
 
 ###################################################################################################################################################

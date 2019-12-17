@@ -10,7 +10,7 @@ from torch.utils import data
 
 
 class Dataset(data.Dataset):
-    def __init__(self, folder_path, folder_id, seg_provided):
+    def __init__(self, folder_path, folder_id, seg_provided = True):
         self.folder_paths = folder_path
         self.folder_ids = folder_id
         self.seg_provided = seg_provided
