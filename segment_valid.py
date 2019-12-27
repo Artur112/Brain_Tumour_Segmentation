@@ -7,14 +7,14 @@ import os
 import torch
 from collections import OrderedDict
 
-preprocessed_valid_data_path = r'C:/users/artur/Desktop/UCL/Brats2019/Data/Preprocessed_Validation'
-#preprocessed_valid_data_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Data/Preprocessed_Validation'
-model_saves_path = r'C:/users/artur/Desktop/UCL/Brats2019/Model_Saves/V4_Prepro_NoAug_Dice'  # Folder where the model saves should be stored in the format Fold_<fold_nr>_Epoch_<epoch_nr>.tar
-#model_saves_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Model_Saves/V1_NoPrepro_NoAug_CrossEn'
-epoch_nr = 80  # Epoch at which to take the model saves (determined from loss plots)
+#preprocessed_valid_data_path = r'C:/users/artur/Desktop/UCL/Brats2019/Data/Preprocessed_Validation'
+preprocessed_valid_data_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Data/Preprocessed_Validation'
+#model_saves_path = r'C:/users/artur/Desktop/UCL/Brats2019/Model_Saves/V4_Prepro_NoAug_Dice'  # Folder where the model saves should be stored in the format Fold_<fold_nr>_Epoch_<epoch_nr>.tar
+model_saves_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Model_Saves/V4_Prepro_NoAug_Dice'
+epoch_nr = 250  # Epoch at which to take the model saves (determined from loss plots)
 parallel_training = 1  # Specify if the model was trained with multiple GPUs (slightly more code needed to load model save)
-save_results_path = r'C:/users/artur/Desktop/UCL/Brats2019/Seg_Results_V4'
-#save_results_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Seg_Results_V4'
+#save_results_path = r'C:/users/artur/Desktop/UCL/Brats2019/Seg_Results_V4'
+save_results_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Seg_Results/Seg_Results_V4'
 folds = [1, 2, 3, 4, 5]  # Fold across which to ensemble average output
 
 if not os.path.isdir(save_results_path):
@@ -62,7 +62,7 @@ for idx in range(0, len(folder_ids)):
             seg_results.append(seg_layer)
 
         seg_layer_avg = torch.mean(torch.stack(seg_results), dim=0)
-        print(seg_layer_avg.shape)
+        #print(seg_layer_avg.shape)
         _, indices = seg_layer_avg.max(0)
         indices = indices.cpu().detach().numpy()
 
