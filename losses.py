@@ -1,87 +1,161 @@
 import torch
-from torch.autograd import Function
-from itertools import repeat
-import numpy as np
+import torch.nn.functional as F
+from torch import nn as nn
+from torch.autograd import Variable
+from torch.nn import MSELoss, SmoothL1Loss, L1Loss
+from model_utils.utils import expand_as_one_hot
 
-# Intersection = dot(A, B)
-# Union = dot(A, A) + dot(B, B)
-# The Dice loss function is defined as
-# 1/2 * intersection / union
-#
-# The derivative is 2[(union * target - 2 * intersect * input) / union^2]
 
-class DiceLoss(Function):
-    def __init__(self, *args, **kwargs):
-        pass
+# Losses obtained from wolny / pytorch-3dunet on github
+def compute_per_channel_dice(input, target, epsilon=1e-5, ignore_index=None, weight=None):
+    # assumes that input is a normalized probability
 
-    def forward(self, input, target, save=True):
-        if save:
-            self.save_for_backward(input, target)
-        eps = 0.000001
-        _, result_ = input.max(1)
-        result_ = torch.squeeze(result_)
-        if input.is_cuda:
-            result = torch.cuda.FloatTensor(result_.size())
-            self.target_ = torch.cuda.FloatTensor(target.size())
+    # input and target shapes must match
+    assert input.size() == target.size(), "'input' and 'target' must have the same shape"
+
+    # mask ignore_index if present
+    if ignore_index is not None:
+        mask = target.clone().ne_(ignore_index)
+        mask.requires_grad = False
+
+        input = input * mask
+        target = target * mask
+
+    input = flatten(input)
+    target = flatten(target)
+
+    target = target.float()
+    # Compute per channel Dice Coefficient
+    intersect = (input * target).sum(-1)
+    if weight is not None:
+        intersect = weight * intersect
+
+    denominator = (input + target).sum(-1)
+    return 2. * intersect / denominator.clamp(min=epsilon)
+
+
+class DiceLoss(nn.Module):
+    """Computes Dice Loss, which just 1 - DiceCoefficient described above.
+    Additionally allows per-class weights to be provided.
+    """
+
+    def __init__(self, epsilon=1e-5, weight=None, ignore_index=None, sigmoid_normalization=True,
+                 skip_last_target=False):
+        super(DiceLoss, self).__init__()
+        self.epsilon = epsilon
+        self.register_buffer('weight', weight)
+        self.ignore_index = ignore_index
+        # The output from the network during training is assumed to be un-normalized probabilities and we would
+        # like to normalize the logits. Since Dice (or soft Dice in this case) is usually used for binary data,
+        # normalizing the channels with Sigmoid is the default choice even for multi-class segmentation problems.
+        # However if one would like to apply Softmax in order to get the proper probability distribution from the
+        # output, just specify sigmoid_normalization=False.
+        if sigmoid_normalization:
+            self.normalization = nn.Sigmoid()
         else:
-            result = torch.FloatTensor(result_.size())
-            self.target_ = torch.FloatTensor(target.size())
-        result.copy_(result_)
-        self.target_.copy_(target)
-        target = self.target_
-#       print(input)
-        intersect = torch.dot(result, target)
-        # binary values so sum the same as sum of squares
-        result_sum = torch.sum(result)
-        target_sum = torch.sum(target)
-        union = result_sum + target_sum + (2*eps)
+            self.normalization = nn.Softmax(dim=1)
+        # if True skip the last channel in the target
+        self.skip_last_target = skip_last_target
 
-        # the target volume can be empty - so we still want to
-        # end up with a score of 1 if the result is 0/0
-        IoU = intersect / union
-        print('union: {:.3f}\t intersect: {:.6f}\t target_sum: {:.0f} IoU: result_sum: {:.0f} IoU {:.7f}'.format(
-            union, intersect, target_sum, result_sum, 2*IoU))
-        out = torch.FloatTensor(1).fill_(2*IoU)
-        self.intersect, self.union = intersect, union
-        return out
+    def forward(self, input, target):
+        # get probabilities from logits
+        input = self.normalization(input)
+        if self.weight is not None:
+            weight = Variable(self.weight, requires_grad=False)
+        else:
+            weight = None
 
-    def backward(self, grad_output):
-        input, _ = self.saved_tensors
-        intersect, union = self.intersect, self.union
-        target = self.target_
-        gt = torch.div(target, union)
-        IoU2 = intersect/(union*union)
-        pred = torch.mul(input[:, 1], IoU2)
-        dDice = torch.add(torch.mul(gt, 2), torch.mul(pred, -4))
-        grad_input = torch.cat((torch.mul(dDice, -grad_output[0]),
-                                torch.mul(dDice, grad_output[0])), 0)
-        return grad_input , None
+        if self.skip_last_target:
+            target = target[:, :-1, ...]
 
-def dice_loss(input, target):
-    return DiceLoss()(input, target)
+        per_channel_dice = compute_per_channel_dice(input, target, epsilon=self.epsilon, ignore_index=self.ignore_index,
+                                                    weight=weight)
+        # Average the Dice score across all channels/classes
+        return torch.mean(1. - per_channel_dice)
 
-def dice_error(input, target):
-    eps = 0.000001
-    _, result_ = input.max(1)
-    result_ = torch.squeeze(result_)
-    if input.is_cuda:
-        result = torch.cuda.FloatTensor(result_.size())
-        target_ = torch.cuda.FloatTensor(target.size())
-    else:
-        result = torch.FloatTensor(result_.size())
-        target_ = torch.FloatTensor(target.size())
-    result.copy_(result_.data)
-    target_.copy_(target.data)
-    target = target_
-    intersect = torch.dot(result, target)
 
-    result_sum = torch.sum(result)
-    target_sum = torch.sum(target)
-    union = result_sum + target_sum + 2*eps
-    intersect = np.max([eps, intersect])
-    # the target volume can be empty - so we still want to
-    # end up with a score of 1 if the result is 0/0
-    IoU = intersect / union
-#    print('union: {:.3f}\t intersect: {:.6f}\t target_sum: {:.0f} IoU: result_sum: {:.0f} IoU {:.7f}'.format(
-#        union, intersect, target_sum, result_sum, 2*IoU))
-    return 2*IoU
+class GeneralizedDiceLoss(nn.Module):
+    """Computes Generalized Dice Loss (GDL) as described in https://arxiv.org/pdf/1707.03237.pdf
+    """
+
+    def __init__(self, epsilon=1e-5, weight=None, ignore_index=None, sigmoid_normalization=True):
+        super(GeneralizedDiceLoss, self).__init__()
+        self.epsilon = epsilon
+        self.register_buffer('weight', weight)
+        self.ignore_index = ignore_index
+        if sigmoid_normalization:
+            self.normalization = nn.Sigmoid()
+        else:
+            self.normalization = nn.Softmax(dim=1)
+
+    def forward(self, input, target):
+        # get probabilities from logits
+        input = self.normalization(input)
+
+        assert input.size() == target.size(), "'input' and 'target' must have the same shape"
+
+        # mask ignore_index if present
+        if self.ignore_index is not None:
+            mask = target.clone().ne_(self.ignore_index)
+            mask.requires_grad = False
+
+            input = input * mask
+            target = target * mask
+
+        input = flatten(input)
+        target = flatten(target)
+
+        target = target.float()
+        target_sum = target.sum(-1)
+        class_weights = Variable(1. / (target_sum * target_sum).clamp(min=self.epsilon), requires_grad=False)
+
+        intersect = (input * target).sum(-1) * class_weights
+        if self.weight is not None:
+            weight = Variable(self.weight, requires_grad=False)
+            intersect = weight * intersect
+        intersect = intersect.sum()
+
+        denominator = ((input + target).sum(-1) * class_weights).sum()
+
+        return 1. - 2. * intersect / denominator.clamp(min=self.epsilon)
+
+
+class WeightedCrossEntropyLoss(nn.Module):
+    """WeightedCrossEntropyLoss (WCE) as described in https://arxiv.org/pdf/1707.03237.pdf
+    """
+
+    def __init__(self, weight=None, ignore_index=-1):
+        super(WeightedCrossEntropyLoss, self).__init__()
+        self.register_buffer('weight', weight)
+        self.ignore_index = ignore_index
+
+    def forward(self, input, target):
+        class_weights = self._class_weights(input)
+        if self.weight is not None:
+            weight = Variable(self.weight, requires_grad=False)
+            class_weights = class_weights * weight
+        return F.cross_entropy(input, target, weight=class_weights, ignore_index=self.ignore_index)
+
+    @staticmethod
+    def _class_weights(input):
+        # normalize the input first
+        input = F.softmax(input, _stacklevel=5)
+        flattened = flatten(input)
+        nominator = (1. - flattened).sum(-1)
+        denominator = flattened.sum(-1)
+        class_weights = Variable(nominator / denominator, requires_grad=False)
+        return class_weights
+
+
+def flatten(tensor):
+    """Flattens a given tensor such that the channel axis is first.
+    The shapes are transformed as follows:
+       (N, C, D, H, W) -> (C, N * D * H * W)
+    """
+    C = tensor.size(1)
+    # new axis order
+    axis_order = (1, 0) + tuple(range(2, tensor.dim()))
+    # Transpose: (N, C, D, H, W) -> (C, N, D, H, W)
+    transposed = tensor.permute(axis_order)
+    # Flatten: (C, N, D, H, W) -> (C, N * D * H * W)
+    return transposed.contiguous().view(C, -1)
