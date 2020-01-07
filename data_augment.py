@@ -55,10 +55,9 @@ class DataAugment():
         return X, Y
 
     def flip(self,X,Y):
-        flip_dir = random.sample([1, 2, 3], k=2)  # Random axis direction in which to flip
-        X = torch.flip(X, flip_dir)
-        Y = torch.flip(Y, flip_dir)
-
+        #Flip horizontally, x dimension is axis 1
+        X = torch.flip(X, [1])
+        Y = torch.flip(Y, [1])
         return X,Y
 
     def gamma_correction(self,X):
@@ -86,7 +85,8 @@ class DataAugment():
         lbl1[lbl1 < 3] = -1
         lbl2[lbl2 < 3] = -1
         lbl3[lbl3 < 3] = -1
-        _, Y = torch.stack([torch.zeros(1, self.batch_size, out_dim, out_dim, out_dim), lbl1, lbl2, lbl3], dim=0).max(0)
+        _, Y = torch.stack([torch.zeros(1,self.batch_size, out_dim, out_dim, out_dim), lbl1, lbl2, lbl3], dim=0).max(0)
+        Y = torch.squeeze(Y,0)
         Y = Y.long()
         return X, Y
 
@@ -110,7 +110,7 @@ class DataAugment():
                         x,y = self.rotate(x,y)
                 elif(augmentation == 'Flip'):
                     # Horizontal flip
-                    if(random.random() > 0.5):
+                    if(random.random() > 0):
                         x,y = self.flip(x,y)
                 elif(augmentation == 'Gamma'):
                     # Random gamma correction
