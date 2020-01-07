@@ -110,7 +110,7 @@ class DataAugment():
                         x,y = self.rotate(x,y)
                 elif(augmentation == 'Flip'):
                     # Horizontal flip
-                    if(random.random() > 0):
+                    if(random.random() > 0.5):
                         x,y = self.flip(x,y)
                 elif(augmentation == 'Gamma'):
                     # Random gamma correction
