@@ -1,21 +1,33 @@
 import numpy as np
 import nibabel as nib
 from data_loaders import Dataset
-from models import Modified3DUNet
+from models import UNet3D
 from skimage.transform import resize
 import os
 import torch
 from collections import OrderedDict
+from sys import argv
 
-#preprocessed_valid_data_path = r'C:/users/artur/Desktop/UCL/Brats2019/Data/Preprocessed_Validation'
-preprocessed_valid_data_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Data/Preprocessed_Validation'
-#model_saves_path = r'C:/users/artur/Desktop/UCL/Brats2019/Model_Saves/V4_Prepro_NoAug_Dice'  # Folder where the model saves should be stored in the format Fold_<fold_nr>_Epoch_<epoch_nr>.tar
-model_saves_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Model_Saves/V4_Prepro_NoAug_Dice'
-epoch_nr = 250  # Epoch at which to take the model saves (determined from loss plots)
-parallel_training = 1  # Specify if the model was trained with multiple GPUs (slightly more code needed to load model save)
-#save_results_path = r'C:/users/artur/Desktop/UCL/Brats2019/Seg_Results_V4'
-save_results_path = r'/home/artur-cmic/Desktop/UCL/Brats2019/Seg_Results/Seg_Results_V4'
-folds = [1, 2, 3, 4, 5]  # Fold across which to ensemble average output
+########################################################################################################################
+# Code to segment a set of scans after model has been trained. Segmentation obtained by ensemble averaging outputs of the
+# models from the different folds. When calling script:
+
+# INPUT arguments:
+#   arg1: path to where the preprocessed scans to segment are stored
+#   arg2: path to where the Model_Saves are stored
+#   arg3: epoch nr at which to to load a models save
+#   arg4: path where to save the segmented scans. Code creates folder if it doesnt exist
+
+# OUTPUT:
+#   segmented scans stored as nii.gz files in provided save results path
+########################################################################################################################
+
+preprocessed_data_path = argv[1]
+model_saves_path = argv[2]
+epoch_nr = int(argv[3])  # Epoch at which to take the model saves (determined from loss plots)
+save_results_path = argv[4]
+
+run_name = model_saves_path[model_saves_path.rindex("/") + 1:]
 
 if not os.path.isdir(save_results_path):
     os.mkdir(save_results_path)
@@ -23,8 +35,8 @@ if not os.path.isdir(save_results_path):
 # Get paths and names (IDS) of folders that store the multimodal training data
 folder_paths = []
 folder_ids = []
-for subdir in os.listdir(preprocessed_valid_data_path):
-    folder_paths.append(os.path.join(preprocessed_valid_data_path, subdir))
+for subdir in os.listdir(preprocessed_data_path):
+    folder_paths.append(os.path.join(preprocessed_data_path, subdir))
     folder_ids.append(subdir)
 
 valid_set = Dataset(folder_paths, folder_ids, False)
@@ -35,10 +47,10 @@ device = torch.device("cuda:0" if use_cuda else "cpu")
 torch.backends.cudnn.benchmark = True
 
 models = []
-for fold in folds:
-    model = Modified3DUNet(4, 4, 16)
+for fold in range(1,6):
+    model = UNet3D(4, 4, False, 16, 'crg', 8)
     checkpoint = torch.load("{}/Fold_{}_Epoch_{}.tar".format(model_saves_path, fold, epoch_nr))
-    if parallel_training:  # If training was done on multiple GPUs have to rename keys in saved model_state_dict:
+    if list(checkpoint['model_state_dict'].keys())[0].find("module") > -1:
         new_state_dict = OrderedDict()
         for k, v in checkpoint['model_state_dict'].items():
             name = k[7:]  # remove module.
@@ -56,10 +68,10 @@ for idx in range(0, len(folder_ids)):
         scans = np.expand_dims(scans, 0)
         scans = torch.from_numpy(scans).to(device)
         seg_results = []
-        for fold in folds:
-            output, seg_layer = models[fold-1](scans)
-            seg_layer = seg_layer.squeeze()
-            seg_results.append(seg_layer)
+        for fold in range(1,6):
+            output = models[fold-1](scans)
+            output = output.squeeze()
+            seg_results.append(output)
 
         seg_layer_avg = torch.mean(torch.stack(seg_results), dim=0)
         #print(seg_layer_avg.shape)
@@ -83,4 +95,4 @@ for idx in range(0, len(folder_ids)):
         img_segm[img_segm == 3] = 4
         img = nib.Nifti1Image(img_segm, [[-1,-0,-0,0],[-0,-1,-0,239],[0,0,1,0],[0,0,0,1]])
         nib.save(img, "{}/{}.nii.gz".format(save_results_path, folder_ids[idx]))
-        print('Saved example {}/{}'.format(idx + 1, len(folder_ids)))
+        print('Saved example {}/{} for run {}'.format(idx + 1, len(folder_ids), run_name))
