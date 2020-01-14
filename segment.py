@@ -16,7 +16,7 @@ from sys import argv
 #   arg1: path to where the preprocessed scans to segment are stored
 #   arg2: path to where the Model_Saves are stored
 #   arg3: epoch nr at which to to load a models save
-#   arg4: path where to save the segmented scans. Code creates folder if it doesnt exist
+#   arg4: path where to save the segmented scans. Code creates folder with name of run in it
 
 # OUTPUT:
 #   segmented scans stored as nii.gz files in provided save results path
@@ -28,7 +28,7 @@ epoch_nr = int(argv[3])  # Epoch at which to take the model saves (determined fr
 save_results_path = argv[4]
 
 run_name = model_saves_path[model_saves_path.rindex("/") + 1:]
-
+save_results_path = os.path.join(save_results_path, run_name)
 if not os.path.isdir(save_results_path):
     os.mkdir(save_results_path)
 
