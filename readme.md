@@ -1,0 +1,1 @@
+Run train.py for training, segment.py for segmenting test scans and evaluate.py for evaluating the performance of those segmentations. Basic code also written to perform survival prediction with a random forest classifiier in surv_prediction folder.
