@@ -8,7 +8,7 @@ import elasticdeform
 # mri scans and y is the batch of labels.
 ###################################################################################
 
-class DataAugment():
+class DataAugment(object):
     def __init__(self, x, y, augmentations_to_use=None):
         if augmentations_to_use is None:
             augmentations_to_use = ['Elastic', 'Rotate', 'Flip', 'Gamma', 'Noise', 'Scale']
@@ -16,6 +16,8 @@ class DataAugment():
         self.mask = y
         self.batch_size = x.shape[0]
         self.augmentations = augmentations_to_use
+        self.sigma_nr = 0
+        self.deform_axes = 0
 
     def elastic_deform(self,X,Y):
         X = X.numpy()
@@ -27,12 +29,12 @@ class DataAugment():
         lbl1 = (Y == 1) * 10.0
         lbl2 = (Y == 2) * 10.0
         lbl3 = (Y == 3) * 10.0
-        sigma_nr = random.uniform(0, 7) # Random factor by which to deform - not too high
-        deform_axes = tuple(sorted(random.sample([1,2,3], k = 2))) # Random two axes in which to deform. Two to save on computational time. Need to sort the array as axis
-        #variable requires sorted input
+        sigma_nr = 5 # Random factor by which to deform
+        d = (1,2,3) # Axes in which to deform
+        deform_axes = [d,d,d,d,d]
 
         [X, brain_region, lbl1, lbl2, lbl3] = elasticdeform.deform_random_grid([X, brain_region, lbl1, lbl2, lbl3], axis=deform_axes, sigma=sigma_nr, points=3)
-
+        deform_axes = d
         brain_region = brain_region.astype('int') > 0
         X = X * brain_region # To make sure background pixels remain 0 in the scans
         X[X<0] = 0 # Remove any negative values - background values close 0
@@ -44,7 +46,7 @@ class DataAugment():
         X = torch.from_numpy(X)
         Y = torch.from_numpy(Y)
 
-        return X,Y
+        return X,Y, sigma_nr, deform_axes
 
     def rotate(self,X,Y):
         rotate_nr = random.randint(0, 3)  # Number of times to rotate
@@ -91,8 +93,9 @@ class DataAugment():
         return X, Y
 
     def augment(self):
-
         to_scale = False
+        #a = 0
+        #b = 0
         # Except for scaling, perform the data augmentations separately for every person in the batch
         for person in range(self.batch_size):
             x = self.scans[person]
@@ -102,8 +105,10 @@ class DataAugment():
             for augmentation in self.augmentations:
                 if(augmentation == 'Elastic'):
                     # Random elastic deformation
-                    if(random.random() > 0.5):
-                        x, y = self.elastic_deform(x, y)
+                    if(random.random() > 0):
+                        x, y, sigma_nr, deform_axes = self.elastic_deform(x, y)
+                        self.sigma_nr = sigma_nr
+                        self.deform_axes = deform_axes
                 elif(augmentation == 'Rotate'):
                     # Random rotation
                     if(random.random() > 0.5):
@@ -131,4 +136,4 @@ class DataAugment():
             if (random.random() > 0.5):
                 self.scans, self.mask = self.scale(self.scans, self.mask)
 
-        return self.scans, self.mask
+        return self.scans, self.mask, self.sigma_nr, self.deform_axes
