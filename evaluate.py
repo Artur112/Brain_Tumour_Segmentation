@@ -3,12 +3,13 @@ import nibabel as nib
 import os
 import pandas as pd
 from sys import argv
+import numpy as np
 
 
 ########################################################################################################################
-# Code for evaluating the segmentation performance of a model. Returns Dice scores for the whole tumor, the enhancing
-# and the necrotic core regions for all the folds as well as the average over the folds. Saves the results in an excel
-# sheet. When calling script:
+# Code for evaluating the segmentation performance of a model (ensemble averaged output over folds). Returns Dice scores
+# for the whole tumor, the enhancing and the necrotic core regions for all the folds as well as the average over the folds.
+# Saves the results in an excel sheet. When calling script:
 
 # INPUT Arguments:
 #   arg1: path to where the segmented scans are stored
@@ -20,10 +21,11 @@ from sys import argv
 # OUTPUT:
 #   Excel sheet of segmentation scores stored in the provided save results path
 ########################################################################################################################
+
 segmented_data_path = argv[1]
 original_data_path = argv[2]
 save_results_path = argv[3]
-all_runs_path = ""
+all_runs_path = 1
 if len(argv) > 4:
     all_runs_path = argv[4]
 run_name = segmented_data_path[segmented_data_path.rindex("/") + 1:]
@@ -55,15 +57,14 @@ for image in range(len(seg_paths)):
     for region_name, masks in comparisons.items():
         overlap_measures_filter = sitk.LabelOverlapMeasuresImageFilter()
         overlap_measures_filter.Execute(sitk.GetImageFromArray(masks['pred']), sitk.GetImageFromArray(masks['gt']))
-        measures['{}, Dice'.format(region_name)] = overlap_measures_filter.GetDiceCoefficient()
-        #measures['{}, Jaccard'.format(region_name)] = overlap_measures_filter.GetJaccardCoefficient()
+        measures[region_name] = overlap_measures_filter.GetDiceCoefficient()
     results[seg_ids[image]] = measures
 
 results = pd.DataFrame.from_dict(results, orient='index').astype('float')
 res_mean = results.mean(axis=0, skipna=True)
 res_std = results.std(axis=0, skipna=True)
-results.loc['Overall Mean'] = res_mean
-results.loc['Overall Std'] = res_std
+results.loc['Mean'] = res_mean
+results.loc['Std'] = res_std
 results = results.astype('float').round(3)
 writer = pd.ExcelWriter('{}/overlap_{}.xlsx'.format(save_results_path,run_name), engine='xlsxwriter')
 results.to_excel(writer)
@@ -71,17 +72,21 @@ writer.save()
 
 if all_runs_path:
     if not os.path.isfile(os.path.join(save_results_path, "All_Results.xlsx")):
-        res_mean['Run'] = run_name
-        all_results = pd.DataFrame([res_mean])
+        column_index = [np.array(['Run', 'Mean', 'Mean', 'Mean', 'Std', 'Std', 'Std']),
+                        np.array([''] + res_mean.index.tolist() + res_mean.index.tolist())]
+        values = [run_name] + res_mean.round(3).values.tolist() + res_std.round(3).values.tolist()
+        all_results = pd.DataFrame(values, index = column_index).transpose()
         all_results.set_index('Run', inplace=True, drop=True)
-        all_results = all_results.round(3)
         writer = pd.ExcelWriter('{}/All_Results.xlsx'.format(save_results_path), engine='xlsxwriter')
         all_results.to_excel(writer)
         writer.save()
     else:
-        all_results = pd.read_excel('{}/All_Results.xlsx'.format(save_results_path), index_col=0)
-        all_results.loc[run_name] = res_mean
-        all_results = all_results.round(3)
+        all_results = pd.read_excel('{}/All_Results.xlsx'.format(save_results_path), header=[0,1],index_col=0)
+        column_index = [np.array(['Mean', 'Mean', 'Mean', 'Std', 'Std', 'Std']),
+                        np.array(res_mean.index.tolist() + res_mean.index.tolist())]
+        values = res_mean.round(3).values.tolist() + res_std.round(3).values.tolist()
+        all = pd.Series(values, index=column_index)
+        all_results.loc[run_name] = all
         writer = pd.ExcelWriter('{}/All_Results.xlsx'.format(save_results_path), engine='xlsxwriter')
         all_results.to_excel(writer)
         writer.save()
