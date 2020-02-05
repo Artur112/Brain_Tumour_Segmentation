@@ -12,7 +12,7 @@ import sys
 # INPUT arguments:
 #   arg1: path to where the raw scans to preprocess are stored
 #   arg2: path where to save the preprocessed scans
-#   arg3: Specify 0 if to preprocess training data (segmentation labels as well) or 1 if test data only.
+#   arg3: Specify 1 if to preprocess training data (segmentation labels as well) or 0 if test data only.
 #
 # OUTPUT:
 #   Preprocessed data stored in numpy arrays in the save_preprocessed_path
