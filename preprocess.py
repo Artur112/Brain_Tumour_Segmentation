@@ -47,7 +47,7 @@ for patient in range(len(folder_paths)):
     # Load in and resize the mri images
     img_t1 = resize(nib.load(os.path.join(data_folder, data_id) + "_t1.nii.gz").get_fdata(), output_size)  # + "_0001.nii.gz").get_fdata(), output_size)
     img_t1ce = resize(nib.load(os.path.join(data_folder, data_id) + "_t1ce.nii.gz").get_fdata(), output_size)  # "_0002.nii.gz").get_fdata(), output_size)
-    img_t2 = resize(nib.load(os.path.join(data_folder, data_id) + " t2.nii.gz").get_fdata(), output_size)  # "_0003.nii.gz").get_fdata(), output_size)
+    img_t2 = resize(nib.load(os.path.join(data_folder, data_id) + "_t2.nii.gz").get_fdata(), output_size)  # "_0003.nii.gz").get_fdata(), output_size)
     img_flair = resize(nib.load(os.path.join(data_folder, data_id) + "_flair.nii.gz").get_fdata(), output_size)  # "_0000.nii.gz").get_fdata(), output_size)
 
     if train_data:
