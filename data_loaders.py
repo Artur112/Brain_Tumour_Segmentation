@@ -3,14 +3,19 @@ from torch.utils import data
 
 
 ##########################################################################
-# Dataset class that feeds data into a data generator. Takes in a list of folder paths in which a patient's scans are stored,
-# a list of the names of the folder / patient ids and whether segmentation labels are provided and should be loaded.
-# Returns two torch arrays, one that contains the multi-modal scans and the other that contains the masks.
+# Dataset class that feeds data into a data generator.
+# INPUT:
+#   folder_path: list of full folder paths of the preprocessed data.
+#   folder_id: list of names of those folders.
+#   seg_provided: specify False if performing inference and only scans should be loaded.
+#
+# OUTPUT:
+#   X, y numpy arrays, where X = [C,H,W,D] contains C modality scans and y = [H,W,D] contains the segmentation labels.
 ##########################################################################
 
 
 class Dataset(data.Dataset):
-    def __init__(self, folder_path, folder_id, seg_provided = True):
+    def __init__(self, folder_path, folder_id, seg_provided=True):
         self.folder_paths = folder_path
         self.folder_ids = folder_id
         self.seg_provided = seg_provided
