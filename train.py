@@ -89,15 +89,15 @@ def gen_plot(scans_orig, scans_aug, mask, prediction, epoch_nr, iteration):
 # To specify:
 
 # Paths where to load data from and save the models to
-preprocessed_data_path = ""
-save_model_path = ""
+preprocessed_data_path = r"/home/artur-cmic/Desktop/UCL/Data_Aug_Experiments/Preprocessed"
+save_model_path = r"/home/artur-cmic/Desktop/UCL/Data_Aug_Experiments"
 
 # Specify which data augmentations to use on the fly (each applied with 50% probability). Possible values:
 # ['Elastic', 'Flip', 'Rotate','Gamma','Scale', 'Noise']. Create empty array if none wanted.
-augmentations_to_use = ['Flip', 'Rotate', 'Gamma', 'Scale', 'Noise']
+augmentations_to_use = [] #'Flip', 'Rotate', 'Gamma', 'Scale', 'Noise']
 
 # Name of the run
-run_name = ""
+run_name = "temp"
 
 # Training Parameters
 batch_size = 2
@@ -175,9 +175,9 @@ for fold in kf.split(folder_paths):
         train_losses = []
         for batch, labels in train_loader:
             # Randomly sample 128x128x128 patch
-            x_orig = random.sample(range(240 - 128), 1)
-            y_orig = random.sample(range(240 - 128), 1)
-            z_orig = random.sample(range(155 - 128), 1)
+            x_orig = random.sample(range(240 - 128), 1)[0]
+            y_orig = random.sample(range(240 - 128), 1)[0]
+            z_orig = random.sample(range(155 - 128), 1)[0]
             batch = batch[:,:,x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
             labels = labels[:,x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
 

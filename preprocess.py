@@ -51,7 +51,7 @@ for patient in range(len(folder_paths)):
 
     if train_data:
         # Load in labels
-        img_segm = nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata().astype('uint8')
+        img_segm = nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata().astype('long')
         # Replace label 4 with label 3
         img_segm[img_segm == 4] = 3
 
