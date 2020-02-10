@@ -174,6 +174,13 @@ for fold in kf.split(folder_paths):
         start_time = time.time()
         train_losses = []
         for batch, labels in train_loader:
+            # Randomly sample 128x128x128 patch
+            x_orig = random.sample(range(240 - 128), 1)
+            y_orig = random.sample(range(240 - 128), 1)
+            z_orig = random.sample(range(155 - 128), 1)
+            batch = batch[:,:,x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
+            labels = labels[:,x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
+
             batch_orig = copy.deepcopy(batch)
 
             # Data Augment

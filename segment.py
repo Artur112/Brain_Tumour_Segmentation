@@ -74,25 +74,9 @@ for idx in range(0, len(folder_ids)):
             seg_results.append(output)
 
         seg_layer_avg = torch.mean(torch.stack(seg_results), dim=0)
-        #print(seg_layer_avg.shape)
         _, indices = seg_layer_avg.max(0)
-        indices = indices.cpu().detach().numpy()
-
-        lbl1 = resize((indices == 1) * 10, (240, 240, 155), preserve_range=True, anti_aliasing=True)
-        lbl2 = resize((indices == 2) * 10, (240, 240, 155), preserve_range=True, anti_aliasing=True)
-        lbl3 = resize((indices == 3) * 10, (240, 240, 155), preserve_range=True, anti_aliasing=True)
-
-        # Remove uncertain pixels at the edges of a label area before merging labels. Essentially remove pixels with class belonging confidence of < 30%.
-        # Made equal to -1 instead of 0, just to make sure that the background pixels are always assigned label 0 with argmax.
-        lbl1[lbl1 < 3] = -1
-        lbl2[lbl2 < 3] = -1
-        lbl3[lbl3 < 3] = -1
-
-        # Merge labels by taking argmax of label values - for a pixel that belongs to two classes after resize, assign to the class
-        # that its value is highest for. Adding np.zeros to the first dimension so np.argmax would give 1 for label 1 and not 0.
-        img_segm = np.argmax(np.asarray([np.zeros((240, 240, 155)), lbl1, lbl2, lbl3]), axis=0).astype(np.uint8)
-
-        img_segm[img_segm == 3] = 4
-        img = nib.Nifti1Image(img_segm, [[-1,-0,-0,0],[-0,-1,-0,239],[0,0,1,0],[0,0,0,1]])
+        indices = indices.cpu().detach().numpy().astype('uint8')
+        indices[indices == 3] = 4
+        img = nib.Nifti1Image(indices, [[-1,-0,-0,0],[-0,-1,-0,239],[0,0,1,0],[0,0,0,1]])
         nib.save(img, "{}/{}.nii.gz".format(save_results_path, folder_ids[idx]))
         print('Saved example {}/{} for run {}'.format(idx + 1, len(folder_ids), run_name))
