@@ -68,7 +68,7 @@ for patient in range(len(folder_paths)):
         Maximum = np.max(new_img)
         Minimum = np.min(new_img[brain_region])
         Range = Maximum - Minimum
-        new_img[brain_region] = ((((new_img[brain_region] - Minimum) / Range - 0.5) * 2) + 1) / 2  # Scale to be between 0 and 1
+        new_img[brain_region] = (new_img[brain_region] - Minimum) / Range  # Scale to be between 0 and 1
         X.append(new_img.astype('float32'))
 
     np.save("{}/{}/{}_scans.npy".format(save_preprocessed_data_path,data_id, data_id), X)
