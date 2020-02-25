@@ -39,8 +39,8 @@ class DataAugment(object):
         lbl2 = (Y == 2) * 10.0
         lbl3 = (Y == 3) * 10.0
         sigma_nr = 5 # Random factor by which to deform
-        d = (1,2,3) # Axes in which to deform
-        # d = tuple(sorted(random.sample([1, 2, 3], k=2))) # Use this instead if you wish to speed up training.
+        # d = (1,2,3) # Axes in which to deform
+        d = tuple(sorted(random.sample([1, 2, 3], k=2))) # Use this instead if you wish to speed up training. Performs elastic transform over 2 axes only
 
         [X, brain_region, lbl1, lbl2, lbl3] = elasticdeform.deform_random_grid([X, brain_region, lbl1, lbl2, lbl3], axis=[d]*5, sigma=sigma_nr, points=3)
 
@@ -67,25 +67,35 @@ class DataAugment(object):
         return X, Y
 
     def flip(self, X, Y):
-        #Flip horizontally (mirroring). x dimension is axis 1.
-        X = torch.flip(X, [1])
-        Y = torch.flip(Y, [1])
+        # Choose random axis in which to flip:
+        # Flip horizontally (mirroring). x dimension is axis 1.
+        axis_to_flip_in = random.sample(range(1,4),1)
+        X = torch.flip(X, axis_to_flip_in)
+        Y = torch.flip(Y, axis_to_flip_in)
         return X, Y
 
     def gamma_correction(self, X):
         # Gamma correction according to Vout = A*Vin^(gamma), where A=1. Gamma uniformly sampled from range [0.5].
-        gamma = random.uniform(0.5, 1.5)  # Random gamma value by which to correct
+        gamma = random.uniform(0.5, 2)  # Random gamma value by which to correct
         X = torch.pow(X, gamma)
+        minimum = torch.min(X)
+        range = torch.max(X) - minimum
+        X = (X - minimum) / range  # Scale to be between 0 and 1
+
         return X
 
     def random_noise(self, X):
         #Add random noise to the model, where noise is square root of 0.1 times a uniform distribution.
         X = X + (0.1**0.5)*torch.randn(X.shape)
+        minimum = torch.min(X)
+        range = torch.max(X) - minimum
+        X = (X - minimum) / range  # Scale to be between 0 and 1
+
         return X
 
     def scale(self,X,Y):
         # Scale by in all axes by one of randomly chosen scaling factors [0.5,0.75,1.25,1.5]
-        scale_nr = random.sample([0.50, 0.75, 1, 1.25, 1.5], k=1)[0]  # Random scale by which to change image size
+        scale_nr = random.sample([0.5, 0.75, 1, 1.25, 1.5], k=1)[0]  # Random scale by which to change image size
         in_dim = X.shape[2]
         out_dim = int(in_dim * scale_nr) # New size to scale to
         Y = torch.unsqueeze(Y,0)

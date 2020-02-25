@@ -188,6 +188,7 @@ for fold in kf.split(folder_paths):
                 augmenter = DataAugment(batch, labels, augmentations_to_use)
                 batch, labels = augmenter.augment()
 
+
             # Transfer batch and labels to GPU
             scans, masks = batch.to(device), labels.to(device)
             output = model(scans)
@@ -223,9 +224,9 @@ for fold in kf.split(folder_paths):
         writer.add_scalar('ValidPE Fold {}'.format(fold_nr), valid_loss_ep, epoch)
         elapsed_time = time.time() - start_time
 
-        print('Fold [{}/{}], Epoch [{}/{}], Train Loss: {:.10f}, Valid Loss {:.10f}, Time_{}'.format(fold_nr, n_folds, epoch, max_epochs, train_loss_ep, valid_loss_ep, time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
+        print('Fold [{}/{}], Epoch [{}/{}], Train Loss {:.10f}, Valid Loss {:.10f}, Time_{}'.format(fold_nr, n_folds, epoch, max_epochs, train_loss_ep, valid_loss_ep, time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
         losses = open("{}/Losses/{}.txt".format(save_model_path, run_name), "a")
-        losses.write('Fold [{}/{}], Epoch [{}/{}], Train Loss: {:.10f}, Valid Loss {:.10f}, Time {}\n'.format(fold, n_folds,epoch, max_epochs,train_loss_ep,valid_loss_ep,time.strftime("%H:%M:%S",time.gmtime(elapsed_time))))
+        losses.write('Fold [{}/{}], Epoch [{}/{}], Train Loss {:.10f}, Valid Loss {:.10f}, Time {}\n'.format(fold, n_folds,epoch, max_epochs,train_loss_ep,valid_loss_ep,time.strftime("%H:%M:%S",time.gmtime(elapsed_time))))
         losses.close()
 
         # Save the model parameters

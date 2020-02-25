@@ -26,9 +26,9 @@ class Dataset(data.Dataset):
     def __getitem__(self, index):
         data_folder = self.folder_paths[index]
         data_id = self.folder_ids[index]
-        X = np.load(r"{}/{}_scans.npy".format(data_folder, data_id))
+        X = np.load(r"{}/{}_scans.npz".format(data_folder, data_id))['arr_0']
         if self.seg_provided:
-            y = np.load(r"{}/{}_mask.npy".format(data_folder, data_id))
+            y = np.load(r"{}/{}_mask.npz".format(data_folder, data_id))['arr_0']
             return X, y
         else:
             return X

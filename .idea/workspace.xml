@@ -1,16 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4be72291-c3ea-48df-b4e2-39eebf45cc8f" name="Default Changelist" comment="">
+    <list default="true" id="4be72291-c3ea-48df-b4e2-39eebf45cc8f" name="Default Changelist" comment="Fixed mistake of resizing images to 128x128x128 instead of randomly sampling a patch of that size 128x128x128 patch during training.">
+      <change afterPath="$PROJECT_DIR$/temp.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualize_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Code.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Code.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/feature_extraction.py" beforeDir="false" afterPath="$PROJECT_DIR$/feature_extraction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_augment.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_augment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_loaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_loaders.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/preprocess.py" beforeDir="false" afterPath="$PROJECT_DIR$/preprocess.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/segment.py" beforeDir="false" afterPath="$PROJECT_DIR$/segment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -22,26 +41,27 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="JupyterTrust" id="935dbbad-e666-40ea-85b7-1386ddfb2bec" />
   <component name="ProjectId" id="1TTdVttyC1KJ40LObbZFbQZzgC4" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/segmentation" />
+      <recent name="$PROJECT_DIR$/surv_prediction" />
+    </key>
   </component>
-  <component name="RunManager" selected="Python.preprocess">
-    <configuration name="data_augment" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.temp">
+    <configuration name="data_aug_get_splits" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -53,7 +73,8 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_augment.py" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_aug_get_splits.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -62,7 +83,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="feature_extraction" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="reg_oneimg" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -74,7 +95,8 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/feature_extraction.py" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/reg_oneimg.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -83,7 +105,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="preprocess" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="temp" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -95,7 +117,8 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/preprocess.py" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/temp.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -116,6 +139,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/train.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -125,7 +149,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="visualize_data" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="train_data_aug" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -137,7 +161,8 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/visualize_data.py" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/train_data_aug.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -147,21 +172,33 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.reg_oneimg" />
       <item itemvalue="Python.train" />
-      <item itemvalue="Python.preprocess" />
-      <item itemvalue="Python.data_augment" />
-      <item itemvalue="Python.visualize_data" />
-      <item itemvalue="Python.feature_extraction" />
+      <item itemvalue="Python.data_aug_get_splits" />
+      <item itemvalue="Python.train_data_aug" />
+      <item itemvalue="Python.temp" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.preprocess" />
-        <item itemvalue="Python.feature_extraction" />
+        <item itemvalue="Python.temp" />
+        <item itemvalue="Python.train_data_aug" />
+        <item itemvalue="Python.data_aug_get_splits" />
         <item itemvalue="Python.train" />
-        <item itemvalue="Python.data_augment" />
-        <item itemvalue="Python.visualize_data" />
+        <item itemvalue="Python.reg_oneimg" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -173,6 +210,112 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1573488045046</updated>
+      <workItem from="1575888495249" duration="538000" />
+      <workItem from="1575889040119" duration="18845000" />
+      <workItem from="1575927874354" duration="24000" />
+      <workItem from="1575927918263" duration="8000" />
+      <workItem from="1575928172227" duration="51000" />
+      <workItem from="1575928661794" duration="10722000" />
+      <workItem from="1576063990064" duration="14634000" />
+      <workItem from="1576166788031" duration="33000" />
+      <workItem from="1576167022666" duration="17918000" />
+      <workItem from="1576579354058" duration="703000" />
+      <workItem from="1576582238198" duration="528000" />
+      <workItem from="1576589287999" duration="9942000" />
+      <workItem from="1576599297107" duration="5889000" />
+      <workItem from="1576605933504" duration="20481000" />
+      <workItem from="1576689518631" duration="1519000" />
+      <workItem from="1576691900933" duration="5883000" />
+      <workItem from="1577298591270" duration="1209000" />
+      <workItem from="1577303398775" duration="25000" />
+      <workItem from="1577303841714" duration="41000" />
+      <workItem from="1577304270159" duration="24000" />
+      <workItem from="1577304774953" duration="53000" />
+      <workItem from="1577305103904" duration="14000" />
+      <workItem from="1577305434879" duration="34000" />
+      <workItem from="1577305793045" duration="12000" />
+      <workItem from="1577306496950" duration="5168000" />
+      <workItem from="1577373548092" duration="178000" />
+      <workItem from="1577374034520" duration="24000" />
+      <workItem from="1577374142935" duration="8000" />
+      <workItem from="1577374441817" duration="38000" />
+      <workItem from="1577374531222" duration="17000" />
+      <workItem from="1577411253537" duration="579000" />
+      <workItem from="1577418207787" duration="307000" />
+      <workItem from="1577418521294" duration="4338000" />
+      <workItem from="1577455908622" duration="12184000" />
+      <workItem from="1577505450784" duration="32000" />
+      <workItem from="1577506664066" duration="59000" />
+      <workItem from="1577507345356" duration="11000" />
+      <workItem from="1577507417569" duration="579000" />
+      <workItem from="1577508830568" duration="149000" />
+      <workItem from="1577550855821" duration="328000" />
+      <workItem from="1577554642354" duration="191000" />
+      <workItem from="1577555353469" duration="129000" />
+      <workItem from="1577556956622" duration="3961000" />
+      <workItem from="1577813724578" duration="1311000" />
+      <workItem from="1577906226634" duration="5217000" />
+      <workItem from="1577911451043" duration="262000" />
+      <workItem from="1577911719224" duration="13525000" />
+      <workItem from="1577932954123" duration="10359000" />
+      <workItem from="1578394624902" duration="1508000" />
+      <workItem from="1578396393663" duration="12030000" />
+      <workItem from="1578481120899" duration="13941000" />
+      <workItem from="1578571053933" duration="3884000" />
+      <workItem from="1578677061560" duration="3757000" />
+      <workItem from="1578681026310" duration="820000" />
+      <workItem from="1578682295482" duration="2801000" />
+      <workItem from="1578930582717" duration="3177000" />
+      <workItem from="1578943652510" duration="1213000" />
+      <workItem from="1578999028884" duration="934000" />
+      <workItem from="1578999981397" duration="2291000" />
+      <workItem from="1579087370119" duration="4383000" />
+      <workItem from="1579209249487" duration="5167000" />
+      <workItem from="1579227391123" duration="252000" />
+      <workItem from="1579227671864" duration="15000" />
+      <workItem from="1579228018491" duration="87000" />
+      <workItem from="1579228121174" duration="6000" />
+      <workItem from="1579229734318" duration="885000" />
+      <workItem from="1579233929891" duration="146000" />
+      <workItem from="1579240795333" duration="599000" />
+      <workItem from="1579243521197" duration="5942000" />
+      <workItem from="1579266832159" duration="5943000" />
+      <workItem from="1579273230498" duration="5323000" />
+      <workItem from="1579286814553" duration="19000" />
+      <workItem from="1579287000195" duration="247000" />
+      <workItem from="1579289478463" duration="834000" />
+      <workItem from="1579347084239" duration="18127000" />
+      <workItem from="1579515958015" duration="18000" />
+      <workItem from="1579527971068" duration="18530000" />
+      <workItem from="1579720145180" duration="357000" />
+      <workItem from="1579720539018" duration="36000" />
+      <workItem from="1579720638177" duration="24774000" />
+      <workItem from="1579789848384" duration="2342000" />
+      <workItem from="1579865723748" duration="33000" />
+      <workItem from="1579866785338" duration="2198000" />
+      <workItem from="1579874205124" duration="127000" />
+      <workItem from="1579874580710" duration="617000" />
+      <workItem from="1579881108084" duration="1076000" />
+      <workItem from="1580125288072" duration="3670000" />
+      <workItem from="1580204489319" duration="2000" />
+      <workItem from="1580210626891" duration="17000" />
+      <workItem from="1580217884959" duration="2947000" />
+      <workItem from="1580292472818" duration="2965000" />
+      <workItem from="1580475236427" duration="4604000" />
+      <workItem from="1580897431429" duration="4146000" />
+      <workItem from="1580994125460" duration="14000" />
+      <workItem from="1580997578672" duration="840000" />
+      <workItem from="1581009569159" duration="5435000" />
+      <workItem from="1581351313462" duration="1888000" />
+      <workItem from="1581354521290" duration="1397000" />
+      <workItem from="1581356131309" duration="181000" />
+      <workItem from="1581505252385" duration="2000" />
+      <workItem from="1581505406464" duration="3000" />
+      <workItem from="1581589274294" duration="4000" />
+      <workItem from="1581936935270" duration="35790000" />
+      <workItem from="1582461080790" duration="10302000" />
+      <workItem from="1582544426591" duration="4572000" />
+      <workItem from="1582554290176" duration="6507000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed some mistakes in the training code and wrote first prototype code for feature extraction with PyRadiomics toolbox">
       <created>1573747675160</created>
@@ -244,8 +387,221 @@
       <option name="project" value="LOCAL" />
       <updated>1574958367328</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Finished feature_extraction code - now extracts all features and saves in a csv file along with age and survival outcome.">
+      <created>1575917147304</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1575917147304</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Finished feature_extraction code - now extracts all features and saves in a csv file along with age and survival outcome.">
+      <created>1575918083834</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1575918083834</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Changed feature extraction to have original survival days as outcome not class label, finished Random Forest Regressor code to make predictions.">
+      <created>1575994702018</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1575994702018</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Fixed DiceLoss implementation and wrote training code to train with it instead of cross entropy.">
+      <created>1576166723978</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1576166723978</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Fixed DiceLoss implementation and wrote training code to train with it instead of cross entropy.">
+      <created>1576166805640</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1576166805640</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Wrote code to obtain dice scores for the whole tumor, enhancing and necrotic core regions. Results are saved in an excel file.">
+      <created>1576243779523</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1576243779523</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Unused Import">
+      <created>1576244339895</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1576244339895</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Remade dice loss and wrote to output data to tensorboard">
+      <created>1576613822257</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1576613822257</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Added Dices and Losses from wolny/pytorch-3dunet">
+      <created>1577928868706</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1577928868706</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Added Random Noise addition to Data Augmentation">
+      <created>1577929335027</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1577929335027</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Commit">
+      <created>1577929599635</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1577929599635</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Commit">
+      <created>1577929615119</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1577929615119</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Renamed file">
+      <created>1577929651465</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1577929651465</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Renamed file">
+      <created>1577929671929</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1577929671929</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Changed flip to only flip along horizontal axis.">
+      <created>1578419349046</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1578419349046</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Changed flip to only flip along horizontal axis.">
+      <created>1578420230094</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1578420230094</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Made codes callable as scripts">
+      <created>1578571105156</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1578571105156</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Little modification to save_results_path">
+      <created>1579001004604</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1579001004604</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Fixed issue with elastic deformation">
+      <created>1580289525879</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1580289525879</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Improved the way data is saved into excel sheet.">
+      <created>1580289697357</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1580289697357</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Simple commit">
+      <created>1580290317093</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1580290317093</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Code for training a 3D-UNet on Brats brain tumor data.">
+      <created>1580290816814</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1580290816814</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Fixed spelling mistake">
+      <created>1580897807292</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1580897807292</updated>
+    </task>
+    <task id="LOCAL-00034" summary="Fixed spelling mistake">
+      <created>1580897972291</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1580897972291</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Fixed spelling mistake">
+      <created>1580898055822</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1580898055822</updated>
+    </task>
+    <task id="LOCAL-00036" summary="Made code neater">
+      <created>1581075746556</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1581075746556</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Made code neater">
+      <created>1581076207070</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1581076207070</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Fixed mistake of resizing images to 128x128x128 instead of randomly sampling a patch of that size during training.">
+      <created>1581352818721</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1581352818721</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Fixed mistake of resizing images to 128x128x128 instead of randomly sampling a patch of that size 128x128x128 patch during training.">
+      <created>1581355882970</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1581355882970</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Cleaned code">
+      <created>1582330032955</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1582330032955</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -261,15 +617,140 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed some mistakes in the training code and wrote first prototype code for feature extraction with PyRadiomics toolbox" />
-    <MESSAGE value="Created function that extracts all the features from one patient's scans." />
-    <MESSAGE value="Wrote code to preprocess data - normalizing by mean and standard deviation, followed by clipping any values higher or lower than 5 to remove outliers, followed by scaling the data to be in between 0 and 1. Currently written in the dataset function, but needs to be changed to preprocess and save all the model prior to training so preprocessing wouldnt have to be repeated during training." />
-    <MESSAGE value="Wrote script that preprocesses and saves all of the preprocessed data. To be run prior to training. Made new dataset class to accomodate this." />
-    <MESSAGE value="Wrote comment better" />
-    <MESSAGE value="Finished first prototype code for data augmentation" />
     <MESSAGE value="Finished first prototype code for data augmentation - elastic deformation needs to be made much faster" />
     <MESSAGE value="Fixed a resizing bug in preprocessing that added an extra label to the segmentation mask." />
     <MESSAGE value="Fixed little bugs in whole pipeline" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed little bugs in whole pipeline" />
+    <MESSAGE value="Finished feature_extraction code - now extracts all features and saves in a csv file along with age and survival outcome." />
+    <MESSAGE value="Changed feature extraction to have original survival days as outcome not class label, finished Random Forest Regressor code to make predictions." />
+    <MESSAGE value="Fixed DiceLoss implementation and wrote training code to train with it instead of cross entropy." />
+    <MESSAGE value="Wrote code to obtain dice scores for the whole tumor, enhancing and necrotic core regions. Results are saved in an excel file." />
+    <MESSAGE value="Unused Import" />
+    <MESSAGE value="Remade dice loss and wrote to output data to tensorboard" />
+    <MESSAGE value="Added Dices and Losses from wolny/pytorch-3dunet" />
+    <MESSAGE value="Added Random Noise addition to Data Augmentation" />
+    <MESSAGE value="Commit" />
+    <MESSAGE value="Renamed file" />
+    <MESSAGE value="Changed flip to only flip along horizontal axis." />
+    <MESSAGE value="Made codes callable as scripts" />
+    <MESSAGE value="Little modification to save_results_path" />
+    <MESSAGE value="Fixed issue with elastic deformation" />
+    <MESSAGE value="Improved the way data is saved into excel sheet." />
+    <MESSAGE value="Simple commit" />
+    <MESSAGE value="Code for training a 3D-UNet on Brats brain tumor data." />
+    <MESSAGE value="Fixed spelling mistake" />
+    <MESSAGE value="Made code neater" />
+    <MESSAGE value="Fixed mistake of resizing images to 128x128x128 instead of randomly sampling a patch of that size during training." />
+    <MESSAGE value="Fixed mistake of resizing images to 128x128x128 instead of randomly sampling a patch of that size 128x128x128 patch during training." />
+    <MESSAGE value="Cleaned code" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaned code" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="588" y="214" width="800" height="677" key="#Notifications" timestamp="1579542616269">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="588" y="214" width="800" height="677" key="#Notifications/67.27.1853.1053@67.27.1853.1053" timestamp="1579542616269" />
+    <state x="632" y="357" width="713" height="390" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1578417107720">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="632" y="357" width="713" height="390" key="#com.intellij.fileTypes.FileTypeChooser/67.27.1853.1053@67.27.1853.1053" timestamp="1578417107720" />
+    <state x="726" y="301" width="524" height="502" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1579782338577">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="726" y="301" width="524" height="502" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1579782338577" />
+    <state x="667" y="172" width="642" height="761" key="#train_(1)" timestamp="1576171686913">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="667" y="172" width="642" height="761" key="#train_(1)/67.27.1853.1053@67.27.1853.1053" timestamp="1576171686913" />
+    <state x="558" y="149" width="860" height="807" key="CommitChangelistDialog2" timestamp="1582330032891">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="558" y="149" width="860" height="807" key="CommitChangelistDialog2/67.27.1853.1053@67.27.1853.1053" timestamp="1582330032891" />
+    <state x="-47" y="225" width="1653" height="855" key="DiffContextDialog" timestamp="1577929528866">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="-47" y="225" width="1653" height="855" key="DiffContextDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1577929528866" />
+    <state width="1807" height="242" key="GridCell.Tab.0.bottom" timestamp="1582638530080">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state width="1807" height="242" key="GridCell.Tab.0.bottom/67.27.1853.1053@67.27.1853.1053" timestamp="1582638530080" />
+    <state width="1807" height="242" key="GridCell.Tab.0.center" timestamp="1582638530079">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state width="1807" height="242" key="GridCell.Tab.0.center/67.27.1853.1053@67.27.1853.1053" timestamp="1582638530079" />
+    <state width="1807" height="242" key="GridCell.Tab.0.left" timestamp="1582638530079">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state width="1807" height="242" key="GridCell.Tab.0.left/67.27.1853.1053@67.27.1853.1053" timestamp="1582638530079" />
+    <state width="1807" height="242" key="GridCell.Tab.0.right" timestamp="1582638530080">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state width="1807" height="242" key="GridCell.Tab.0.right/67.27.1853.1053@67.27.1853.1053" timestamp="1582638530080" />
+    <state width="1807" height="344" key="GridCell.Tab.1.bottom" timestamp="1579769803983">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state width="1807" height="344" key="GridCell.Tab.1.bottom/67.27.1853.1053@67.27.1853.1053" timestamp="1579769803983" />
+    <state width="1807" height="344" key="GridCell.Tab.1.center" timestamp="1579769803983">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state width="1807" height="344" key="GridCell.Tab.1.center/67.27.1853.1053@67.27.1853.1053" timestamp="1579769803983" />
+    <state width="1807" height="344" key="GridCell.Tab.1.left" timestamp="1579769803982">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state width="1807" height="344" key="GridCell.Tab.1.left/67.27.1853.1053@67.27.1853.1053" timestamp="1579769803982" />
+    <state width="1807" height="344" key="GridCell.Tab.1.right" timestamp="1579769803983">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state width="1807" height="344" key="GridCell.Tab.1.right/67.27.1853.1053@67.27.1853.1053" timestamp="1579769803983" />
+    <state x="698" y="270" width="580" height="564" key="MultipleFileMergeDialog" timestamp="1580897835755">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="698" y="270" width="580" height="564" key="MultipleFileMergeDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1580897835755" />
+    <state x="488" y="205" key="SettingsEditor" timestamp="1578489537509">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="488" y="205" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1578489537509" />
+    <state x="588" y="288" width="800" height="528" key="Vcs.Push.Dialog.v2" timestamp="1582330038803">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="588" y="288" width="800" height="528" key="Vcs.Push.Dialog.v2/67.27.1853.1053@67.27.1853.1053" timestamp="1582330038803" />
+    <state x="714" y="346" width="549" height="413" key="git4idea.merge.GitMergeDialog" timestamp="1577929559477">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="714" y="346" width="549" height="413" key="git4idea.merge.GitMergeDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1577929559477" />
+    <state x="726" y="386" key="git4idea.ui.GitUnstashDialog" timestamp="1577929576573">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="726" y="386" key="git4idea.ui.GitUnstashDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1577929576573" />
+    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1582462933972">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1582462933972" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/train_data_aug.py</url>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Code$preprocess.coverage" NAME="preprocess Coverage Results" MODIFIED="1575890268471" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$train.coverage" NAME="train Coverage Results" MODIFIED="1581355811179" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$evaluate.coverage" NAME="evaluate Coverage Results" MODIFIED="1579446277938" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$reg_oneimg.coverage" NAME="reg_oneimg Coverage Results" MODIFIED="1581355235180" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$train_data_aug.coverage" NAME="train_data_aug Coverage Results" MODIFIED="1582025132082" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$feature_extraction.coverage" NAME="feature_extraction Coverage Results" MODIFIED="1575979222369" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$midl_get_splits.coverage" NAME="midl_get_splits Coverage Results" MODIFIED="1580292729015" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$temp.coverage" NAME="temp Coverage Results" MODIFIED="1582638518580" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$visualize_data.coverage" NAME="visualize_data Coverage Results" MODIFIED="1579272370827" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$segment_valid.coverage" NAME="segment_valid Coverage Results" MODIFIED="1577411392722" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$train_V4.coverage" NAME="train_V4 Coverage Results" MODIFIED="1576612458887" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$preprocess__1_.coverage" NAME="preprocess (1) Coverage Results" MODIFIED="1579769799978" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$data_aug_get_splits.coverage" NAME="data_aug_get_splits Coverage Results" MODIFIED="1581945962645" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$survival_prediction.coverage" NAME="survival_prediction Coverage Results" MODIFIED="1575981362168" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code$segmentation_evaluation.coverage" NAME="segmentation_evaluation Coverage Results" MODIFIED="1576243590495" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

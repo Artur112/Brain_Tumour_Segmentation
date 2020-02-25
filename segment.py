@@ -32,7 +32,7 @@ save_results_path = os.path.join(save_results_path, run_name)
 if not os.path.isdir(save_results_path):
     os.mkdir(save_results_path)
 
-# Get paths and names (IDS) of folders that store the multimodal training data
+# Get folder paths and names (IDS) of folders that store the preprocessed data
 folder_paths = []
 folder_ids = []
 for subdir in os.listdir(preprocessed_data_path):

@@ -15,7 +15,7 @@ import sys
 #   arg3: Specify 1 if to preprocess training data (segmentation labels as well) or 0 if test data only.
 #
 # OUTPUT:
-#   Preprocessed data stored in numpy arrays in the save_preprocessed_path
+#   Preprocessed data stored in compressed npz files in the save_preprocessed_path
 ##############################################
 
 raw_data_path = sys.argv[1]
@@ -71,8 +71,10 @@ for patient in range(len(folder_paths)):
         new_img[brain_region] = (new_img[brain_region] - Minimum) / Range  # Scale to be between 0 and 1
         X.append(new_img.astype('float32'))
 
-    np.save("{}/{}/{}_scans.npy".format(save_preprocessed_data_path,data_id, data_id), X)
+    np.savez_compressed("{}/{}/{}_scans".format(save_preprocessed_data_path,data_id, data_id), X)
     if train_data:
-        np.save("{}/{}/{}_mask.npy".format(save_preprocessed_data_path, data_id, data_id), img_segm)
+        np.savez_compressed("{}/{}/{}_mask".format(save_preprocessed_data_path, data_id, data_id), img_segm)
     print("Preprocessed patient {}/{} scans".format(i, len(folder_paths)))
     i = i + 1
+
+
