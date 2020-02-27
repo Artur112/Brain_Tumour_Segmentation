@@ -24,7 +24,7 @@ from model_utils.utils import expand_as_one_hot
 from models import UNet3D
 from losses import GeneralizedDiceLoss
 
-def gen_plot(scans_orig, scans_aug, mask, prediction, epoch_nr, iteration):
+def gen_subplot(scans_orig, scans_aug, mask, prediction, epoch_nr, iteration, aug_used):
     _, indices = prediction.max(0)
     indices = indices.cpu().detach().numpy()
     prediction = prediction.cpu().detach().numpy()
@@ -43,7 +43,7 @@ def gen_plot(scans_orig, scans_aug, mask, prediction, epoch_nr, iteration):
         plt.imshow(scans_aug[1, :, :, slices[row-1]], cmap='gray')
         plt.ylabel("Slice {}".format(slices[row-1]))
         if row==1:
-            plt.title('Aug')
+            plt.title('Aug: ' + aug_used)
         plt.subplot(3, 8, 3 + (row-1)*8)
         plt.imshow(mask[:, :, slices[row-1]])
         if row==1:
@@ -175,53 +175,68 @@ for fold in kf.split(folder_paths):
         train_losses = []
         for batch, labels in train_loader:
             # Randomly sample 128x128x128 patch
-            x_orig = random.sample(range(240 - 128), 1)[0]
-            y_orig = random.sample(range(240 - 128), 1)[0]
-            z_orig = random.sample(range(155 - 128), 1)[0]
-            batch = batch[:,:,x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
-            labels = labels[:,x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
+            x_orig = random.sample(range(batch.shape[2] - 128), 1)[0]
+            y_orig = random.sample(range(batch.shape[3] - 128), 1)[0]
+            z_orig = random.sample(range(batch.shape[4] - 128), 1)[0]
+            batch = batch[:, :, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
+            labels = labels[:, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
+            batch_orig = copy.deepcopy(batch)  # Save batch before augmentation for plotting outputs
 
-            batch_orig = copy.deepcopy(batch)
-
-            # Data Augment
+            # Data Augment if augmentations were given
             if not len(augmentations_to_use) == 0:
                 augmenter = DataAugment(batch, labels, augmentations_to_use)
-                batch, labels = augmenter.augment()
+                batch, labels, augmentation_parameters = augmenter.augment()
 
+            # If scaling to a bigger volume was performed, randomly sample a 128x128x128 patch again or it wont fit into GPU memory
+            if batch.shape[2] > 128:
+                x_orig = random.sample(range(batch.shape[2] - 128), 1)[0]
+                y_orig = random.sample(range(batch.shape[3] - 128), 1)[0]
+                z_orig = random.sample(range(batch.shape[4] - 128), 1)[0]
+                batch = batch[:, :, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
+                labels = labels[:, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
 
             # Transfer batch and labels to GPU
             scans, masks = batch.to(device), labels.to(device)
+            # Run through network
             output = model(scans)
 
-            if(iter_nr % 100 == 0):
-                subplot_img = gen_plot(batch_orig[0], batch[0], labels[0], output[0], epoch, iter_nr)
-                writer.add_image('Fold {}'.format(fold_nr), subplot_img, iter_nr)
+            # Save images of network output every 100 iterations
+            if (iter_nr % 100 == 0):
+                subplot_img = gen_subplot(batch_orig[0], batch[0], labels[0], output[0], epoch, iter_nr, augmentation_parameters)
+                writer.add_image('{}'.format(run_name), subplot_img, iter_nr)
 
             masks = expand_as_one_hot(masks, n_classes)
             train_loss = criterion(output, masks)
-
             optimizer.zero_grad()
             train_loss.backward()
             optimizer.step()
             train_losses.append(train_loss.item())
 
-            writer.add_scalar('Train Loss Fold {}'.format(fold_nr), train_loss.item(), iter_nr)
+            # Log training loss to tensorboard
+            writer.add_scalar('Train Loss', train_loss.item(), iter_nr)
             iter_nr += 1
 
         # Get training loss after every epoch
         train_loss_ep = np.mean(train_losses)
         writer.add_scalar('TrainPE Fold {}'.format(fold_nr), train_loss_ep, epoch)
-        # Get validation loss after every epoch
         valid_losses = []
         with torch.no_grad():
             for batch, labels in valid_loader:
+                # Randomly sample 128x128x128 patch
+                x_orig = random.sample(range(batch.shape[2] - 128), 1)[0]
+                y_orig = random.sample(range(batch.shape[3] - 128), 1)[0]
+                z_orig = random.sample(range(batch.shape[4] - 128), 1)[0]
+                batch = batch[:, :, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
+                labels = labels[:, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
+
                 scans, masks = batch.to(device), labels.to(device)
                 output = model(scans)
                 masks = expand_as_one_hot(masks, n_classes)
-                valid_loss = criterion(output, masks)  # For cross entropy
+                valid_loss = criterion(output, masks)
                 valid_losses.append(valid_loss.item())
         valid_loss_ep = np.mean(valid_losses)
-        writer.add_scalar('ValidPE Fold {}'.format(fold_nr), valid_loss_ep, epoch)
+        # Log valid loss to tensorboard
+        writer.add_scalar('Valid Loss per Epoch', valid_loss_ep, epoch)
         elapsed_time = time.time() - start_time
 
         print('Fold [{}/{}], Epoch [{}/{}], Train Loss {:.10f}, Valid Loss {:.10f}, Time_{}'.format(fold_nr, n_folds, epoch, max_epochs, train_loss_ep, valid_loss_ep, time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
