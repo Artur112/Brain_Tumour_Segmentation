@@ -28,11 +28,16 @@ class Dataset(data.Dataset):
         data_folder = self.folder_paths[index]
         data_id = self.folder_ids[index]
         X = np.load(r"{}/{}_scans.npz".format(data_folder, data_id))['arr_0']
+        x_orig, y_orig, z_orig = 0, 0, 0
 
         # Randomly sample 128x128x128 patch
-        x_orig = random.sample(range(X.shape[1] - 128), 1)[0]
-        y_orig = random.sample(range(X.shape[2] - 128), 1)[0]
-        z_orig = random.sample(range(X.shape[3] - 128), 1)[0]
+        if (X.shape[1] > 128):
+            x_orig = random.sample(range(X.shape[1] - 127), 1)[0]
+        if (X.shape[2] > 128):
+            y_orig = random.sample(range(X.shape[2] - 127), 1)[0]
+        if (X.shape[3] > 128):
+            z_orig = random.sample(range(X.shape[3] - 127), 1)[0]
+
         X = X[:, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
 
         if self.seg_provided:
@@ -41,4 +46,5 @@ class Dataset(data.Dataset):
             return X, y
         else:
             return X
+
 

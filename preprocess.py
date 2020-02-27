@@ -55,7 +55,7 @@ for patient in range(len(folder_paths)):
         img_seg = nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata().astype('long')
         img_seg[img_seg == 4] = 3  # Replace label 4 with label 3
 
-    # Crop the images to only keep bounding box area of the brain
+    # Crop the images to only keep bounding box area of the brain, with the bounding box atleast 128 length in each dimension
     r = np.any(img_t1, axis=(1, 2))
     c = np.any(img_t1, axis=(0, 2))
     z = np.any(img_t1, axis=(0, 1))
@@ -63,11 +63,33 @@ for patient in range(len(folder_paths)):
     cmin, cmax = np.where(c)[0][[0, -1]]
     zmin, zmax = np.where(z)[0][[0, -1]]
 
+    if (rmax - rmin < 127):
+        diff = 127 - (rmax - rmin)
+        pad_left = int(diff/2)
+        pad_right = diff-pad_left
+        rmin = rmin - pad_left
+        rmax = rmax + pad_right
+
+    if (cmax - cmin < 127):
+        diff = 127 - (cmax - cmin)
+        pad_left = int(diff / 2)
+        pad_right = diff - pad_left
+        cmin = cmin - pad_left
+        cmax = cmax + pad_right
+
+    if (zmax - zmin < 127):
+        diff = 127 - (zmax - zmin)
+        pad_left = int(diff / 2)
+        pad_right = diff - pad_left
+        zmin = zmin - pad_left
+        zmax = zmax + pad_right
+
     img_t1 = img_t1[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
     img_t1ce = img_t1ce[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
     img_t2 = img_t2[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
     img_flair = img_flair[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
     img_seg = img_seg[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
+
 
     # Standardize and scale pixel intensity values and store all the modalities in the same array
     X = []
