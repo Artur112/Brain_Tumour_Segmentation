@@ -174,17 +174,11 @@ for fold in kf.split(folder_paths):
         start_time = time.time()
         train_losses = []
         for batch, labels in train_loader:
-            # Randomly sample 128x128x128 patch
-            x_orig = random.sample(range(batch.shape[2] - 128), 1)[0]
-            y_orig = random.sample(range(batch.shape[3] - 128), 1)[0]
-            z_orig = random.sample(range(batch.shape[4] - 128), 1)[0]
-            batch = batch[:, :, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
-            labels = labels[:, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
             batch_orig = copy.deepcopy(batch)  # Save batch before augmentation for plotting outputs
 
             # Data Augment if augmentations were given
             if not len(augmentations_to_use) == 0:
-                augmenter = DataAugment(batch, labels, augmentations_to_use)
+                augmenter = DataAugment(batch, labels, augmentations_to_use, True)
                 batch, labels, augmentation_parameters = augmenter.augment()
 
             # If scaling to a bigger volume was performed, randomly sample a 128x128x128 patch again or it wont fit into GPU memory
@@ -222,13 +216,6 @@ for fold in kf.split(folder_paths):
         valid_losses = []
         with torch.no_grad():
             for batch, labels in valid_loader:
-                # Randomly sample 128x128x128 patch
-                x_orig = random.sample(range(batch.shape[2] - 128), 1)[0]
-                y_orig = random.sample(range(batch.shape[3] - 128), 1)[0]
-                z_orig = random.sample(range(batch.shape[4] - 128), 1)[0]
-                batch = batch[:, :, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
-                labels = labels[:, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
-
                 scans, masks = batch.to(device), labels.to(device)
                 output = model(scans)
                 masks = expand_as_one_hot(masks, n_classes)
