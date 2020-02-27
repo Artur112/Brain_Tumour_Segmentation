@@ -3,26 +3,29 @@ import numpy as np
 import random
 import elasticdeform
 
-###################################################################################
-# Data augmentation code to be run during training.
+########################################################################################################################
+# Data augmentation class to be called during training.
 # INPUT:
 #   x = [B,C,H,W,D] torch tensor containing B batches of C different modalities.
 #   y = [B,H,W,D] torch tensor containing B batches of segmentation labels
-#   augmentations_to_use: list containing the following possible values: 'Elastic', 'Rotate', 'Flip', 'Gamma', 'Noise', 'Scale'.
-#                         If nothing is given then all are used.
+#   augmentations_to_use: list containing the following possible values: 'Elastic', 'Rotate', 'Flip', 'Gamma', 'Rician',
+#       'Gaussian', 'Scale'. Default is to use all, specify an empty list to use none.
+#   log_aug_used: whether to also return a string of the parameters that were using for each applied data augmentation.
 #
 # OUTPUT:
 #   Torch tensors x and y augmented with the specified data augmentations, each augmentation applied with 0.5 probability.
-###################################################################################
+########################################################################################################################
 
 class DataAugment(object):
-    def __init__(self, x, y, augmentations_to_use=None):
+    def __init__(self, x, y, augmentations_to_use=None, log_aug_used=False):
         if augmentations_to_use is None:
-            augmentations_to_use = ['Elastic', 'Rotate', 'Flip', 'Gamma', 'Noise', 'Scale']
+            augmentations_to_use = ['Elastic', 'Rotate', 'Flip', 'Gamma', 'Rician', 'Gaussian', 'Scale']
         self.scans = x
         self.mask = y
         self.batch_size = x.shape[0]
         self.augmentations = augmentations_to_use
+        self.log_aug_used = log_aug_used  # Whether to save and output the values used for data augmentation
+        self.aug_parameters = ""
 
     def elastic_deform(self, X, Y):
         # Elastic deformation with a random square deformation grid, where the displacements are sampled from a normal distribution with
@@ -64,6 +67,11 @@ class DataAugment(object):
         X = torch.rot90(X, rotate_nr, rotate_dir)
         Y = torch.rot90(Y, rotate_nr, rotate_dir)
 
+        if self.log_aug_used:
+            if self.aug_parameters:
+                self.aug_parameters = self.aug_parameters + "; Rot_nr: {}, Rot_dir: {}".format(rotate_nr, rotate_dir)
+            else:
+                self.aug_parameters = self.aug_parameters + "Rot_nr: {}, Rot_dir: {}".format(rotate_nr, rotate_dir)
         return X, Y
 
     def flip(self, X, Y):
@@ -72,25 +80,62 @@ class DataAugment(object):
         axis_to_flip_in = random.sample(range(1,4),1)
         X = torch.flip(X, axis_to_flip_in)
         Y = torch.flip(Y, axis_to_flip_in)
+
+        if self.log_aug_used:
+            if self.aug_parameters:
+                self.aug_parameters = self.aug_parameters + "; Flip_dir: {}".format(axis_to_flip_in)
+            else:
+                self.aug_parameters = self.aug_parameters + "Flip_dir: {}".format(axis_to_flip_in)
         return X, Y
 
     def gamma_correction(self, X):
-        # Gamma correction according to Vout = A*Vin^(gamma), where A=1. Gamma uniformly sampled from range [0.5].
+        # Gamma correction according to Vout = A*Vin^(gamma), where A=1. Gamma uniformly sampled from range [0.5, 2].
         gamma = random.uniform(0.5, 2)  # Random gamma value by which to correct
         X = torch.pow(X, gamma)
+
+        # Rescale data to the range 0 and 1
         minimum = torch.min(X)
         range = torch.max(X) - minimum
         X = (X - minimum) / range  # Scale to be between 0 and 1
+
+        if self.log_aug_used:
+            if self.aug_parameters:
+                self.aug_parameters = self.aug_parameters + "; Gamma: {}".format(gamma)
+            else:
+                self.aug_parameters = self.aug_parameters + "Gamma: {}".format(gamma)
+        return X
+
+    def rician_noise(self, X):
+        #Add rician noise with variance sampled uniformly from the range 0 and 0.1
+        noise_variance = random.uniform(0, 0.1)
+        X = torch.sqrt(X + noise_variance*torch.randn(X.shape) + noise_variance*torch.randn(X.shape))
+        # Rescale data to the range 0 and 1
+        minimum = torch.min(X)
+        range = torch.max(X) - minimum
+        X = (X - minimum) / range  # Scale to be between 0 and 1
+
+        if self.log_aug_used:
+            if self.aug_parameters:
+                self.aug_parameters = self.aug_parameters + "; Ric_var: {}".format(noise_variance)
+            else:
+                self.aug_parameters = self.aug_parameters + "Ric_var: {}".format(noise_variance)
 
         return X
 
-    def random_noise(self, X):
-        #Add random noise to the model, where noise is square root of 0.1 times a uniform distribution.
-        X = X + (0.1**0.5)*torch.randn(X.shape)
+    def gaussian_noise(self, X):
+        #Add gaussian noise with mean 0 and variance sampled uniformly from the range 0 and 0.1
+        noise_variance = random.uniform(0, 0.1)
+        X = X + noise_variance*torch.randn(X.shape)
+        # Rescale data to the range 0 and 1
         minimum = torch.min(X)
         range = torch.max(X) - minimum
-        X = (X - minimum) / range  # Scale to be between 0 and 1
+        X = (X - minimum) / range
 
+        if self.log_aug_used:
+            if self.aug_parameters:
+                self.aug_parameters = self.aug_parameters + "; Gaus_var: {}".format(noise_variance)
+            else:
+                self.aug_parameters = self.aug_parameters + "Gaus_var: {}".format(noise_variance)
         return X
 
     def scale(self,X,Y):
@@ -113,6 +158,12 @@ class DataAugment(object):
         _, Y = torch.stack([torch.zeros(1,self.batch_size, out_dim, out_dim, out_dim), lbl1, lbl2, lbl3], dim=0).max(0)
         Y = torch.squeeze(Y,0)
         Y = Y.long()
+
+        if self.log_aug_used:
+            if self.aug_parameters:
+                self.aug_parameters = self.aug_parameters + "; Scale: {}".format(scale_nr)
+            else:
+                self.aug_parameters = self.aug_parameters + "Scale: {}".format(scale_nr)
         return X, Y
 
     def augment(self):
@@ -136,9 +187,12 @@ class DataAugment(object):
                 elif(augmentation == 'Gamma'):
                     if(random.random() > 0.5):
                         x = self.gamma_correction(x)
+                elif (augmentation == 'Rician'):
+                    if (random.random() > 0.5):
+                        x = self.rician_noise(x)
                 elif(augmentation == 'Noise'):
                     if (random.random() > 0.5):
-                        x = self.random_noise(x)
+                        x = self.gaussian_noise(x)
                 elif(augmentation == 'Scale'):
                     to_scale = True
 
@@ -150,4 +204,7 @@ class DataAugment(object):
             if (random.random() > 0.5):
                 self.scans, self.mask = self.scale(self.scans, self.mask)
 
-        return self.scans, self.mask
+        if self.log_aug_used:
+            return self.scans, self.mask, self.aug_parameters
+        else:
+            return self.scans, self.mask
