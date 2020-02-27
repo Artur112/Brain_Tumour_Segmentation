@@ -183,9 +183,9 @@ for fold in kf.split(folder_paths):
 
             # If scaling to a bigger volume was performed, randomly sample a 128x128x128 patch again or it wont fit into GPU memory
             if batch.shape[2] > 128:
-                x_orig = random.sample(range(batch.shape[2] - 128), 1)[0]
-                y_orig = random.sample(range(batch.shape[3] - 128), 1)[0]
-                z_orig = random.sample(range(batch.shape[4] - 128), 1)[0]
+                x_orig = random.sample(range(batch.shape[2] - 127), 1)[0]
+                y_orig = random.sample(range(batch.shape[3] - 127), 1)[0]
+                z_orig = random.sample(range(batch.shape[4] - 127), 1)[0]
                 batch = batch[:, :, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
                 labels = labels[:, x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
 
