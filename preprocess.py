@@ -8,13 +8,14 @@ import sys
 # Code for preprocessing all of the scans and storing them in numpy arrays. Done so that preprocessing wouldn't be
 # repeated during training, thereby speeding up the training process. Assumes the data is all in the specified folder
 # and not within sub folders in it (ie <Brats_ID> folder that stores the scans for that Brats_ID is in that folder and
-# not a subfolder). Preprocessing first crops each image to keep the brain region only after which the pixel
+# not a subfolder). Preprocessing first crops each image to keep the brain region only if specified after which the pixel
 # values are standardized and scaled to the range 0 and 1.
 
 # INPUT arguments:
 #   arg1: path to where the raw scans to preprocess are stored
 #   arg2: path where to save the preprocessed scans
-#   arg3: Specify 1 if to preprocess training data (segmentation labels as well) or 0 if test data only.
+#   arg3: Specify 1 if to crop images to exclude zero regions outside brain. 0 if pixel intensity scaling only.
+#   arg4: Specify 1 if to preprocess training data (segmentation labels as well) or 0 if test data only.
 #
 # OUTPUT:
 #   Preprocessed data stored in compressed npz files in the save_preprocessed_path
@@ -22,7 +23,8 @@ import sys
 
 raw_data_path = sys.argv[1]
 save_preprocessed_data_path = sys.argv[2]
-train_data = int(sys.argv[3])
+crop_data = int(sys.argv[3])
+train_data = int(sys.argv[4])
 
 # Create the folder to store preprocessed data in, exit if folder already exists.
 if not os.path.isdir(save_preprocessed_data_path):
@@ -55,40 +57,41 @@ for patient in range(len(folder_paths)):
         img_seg = nib.load(os.path.join(data_folder, data_id) + "_seg.nii.gz").get_fdata().astype('long')
         img_seg[img_seg == 4] = 3  # Replace label 4 with label 3
 
-    # Crop the images to only keep bounding box area of the brain, with the bounding box atleast 128 length in each dimension
-    r = np.any(img_t1, axis=(1, 2))
-    c = np.any(img_t1, axis=(0, 2))
-    z = np.any(img_t1, axis=(0, 1))
-    rmin, rmax = np.where(r)[0][[0, -1]]
-    cmin, cmax = np.where(c)[0][[0, -1]]
-    zmin, zmax = np.where(z)[0][[0, -1]]
+    if crop_data:
+        # Crop the images to only keep bounding box area of the brain, with the bounding box atleast 128 length in each dimension
+        r = np.any(img_t1, axis=(1, 2))
+        c = np.any(img_t1, axis=(0, 2))
+        z = np.any(img_t1, axis=(0, 1))
+        rmin, rmax = np.where(r)[0][[0, -1]]
+        cmin, cmax = np.where(c)[0][[0, -1]]
+        zmin, zmax = np.where(z)[0][[0, -1]]
 
-    if (rmax - rmin < 127):
-        diff = 127 - (rmax - rmin)
-        pad_left = int(diff/2)
-        pad_right = diff-pad_left
-        rmin = rmin - pad_left
-        rmax = rmax + pad_right
+        if (rmax - rmin < 127):
+            diff = 127 - (rmax - rmin)
+            pad_left = int(diff/2)
+            pad_right = diff-pad_left
+            rmin = rmin - pad_left
+            rmax = rmax + pad_right
 
-    if (cmax - cmin < 127):
-        diff = 127 - (cmax - cmin)
-        pad_left = int(diff / 2)
-        pad_right = diff - pad_left
-        cmin = cmin - pad_left
-        cmax = cmax + pad_right
+        if (cmax - cmin < 127):
+            diff = 127 - (cmax - cmin)
+            pad_left = int(diff / 2)
+            pad_right = diff - pad_left
+            cmin = cmin - pad_left
+            cmax = cmax + pad_right
 
-    if (zmax - zmin < 127):
-        diff = 127 - (zmax - zmin)
-        pad_left = int(diff / 2)
-        pad_right = diff - pad_left
-        zmin = zmin - pad_left
-        zmax = zmax + pad_right
+        if (zmax - zmin < 127):
+            diff = 127 - (zmax - zmin)
+            pad_left = int(diff / 2)
+            pad_right = diff - pad_left
+            zmin = zmin - pad_left
+            zmax = zmax + pad_right
 
-    img_t1 = img_t1[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
-    img_t1ce = img_t1ce[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
-    img_t2 = img_t2[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
-    img_flair = img_flair[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
-    img_seg = img_seg[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
+        img_t1 = img_t1[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
+        img_t1ce = img_t1ce[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
+        img_t2 = img_t2[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
+        img_flair = img_flair[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
+        img_seg = img_seg[rmin: rmax+1, cmin: cmax+1, zmin: zmax+1]
 
 
     # Standardize and scale pixel intensity values and store all the modalities in the same array
