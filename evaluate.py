@@ -2,6 +2,7 @@ import SimpleITK as sitk
 import nibabel as nib
 import os
 import pandas as pd
+import sys
 from sys import argv
 import numpy as np
 
@@ -22,9 +23,9 @@ import numpy as np
 #   Excel sheet of segmentation scores stored in the provided save results path
 ########################################################################################################################
 
-segmented_data_path = argv[1]
-original_data_path = argv[2]
-save_results_path = argv[3]
+segmented_data_path = argv[1] #'/home/artur-cmic/Desktop/UCL/Data_Aug_Experiments/Data/temp/Affine_010_1'
+original_data_path = argv[2]  # '/home/artur-cmic/Desktop/UCL/Data_Aug_Experiments/Data/James_Validation'
+save_results_path = argv[3] #'/home/artur-cmic/Desktop/UCL/Data_Aug_Experiments/Results_James'
 all_runs_path = 1
 if len(argv) > 4:
     all_runs_path = argv[4]
@@ -37,6 +38,8 @@ seg_ids = []
 for file_to_segment in os.listdir(segmented_data_path):
     seg_paths.append(os.path.join(segmented_data_path, file_to_segment))
     seg_ids.append(file_to_segment[:-7])
+
+
 
 results = {}
 for image in range(len(seg_paths)):
@@ -57,7 +60,12 @@ for image in range(len(seg_paths)):
     for region_name, masks in comparisons.items():
         overlap_measures_filter = sitk.LabelOverlapMeasuresImageFilter()
         overlap_measures_filter.Execute(sitk.GetImageFromArray(masks['pred']), sitk.GetImageFromArray(masks['gt']))
-        measures[region_name] = overlap_measures_filter.GetDiceCoefficient()
+        overlap = overlap_measures_filter.GetDiceCoefficient()
+        # If a subregion of the tumor was not present in the labels / image, then overlap will be equal to infinity as there is nothing to compare
+        # and mean over all images would become infinity. For these cases make overlap equal to NaN so it is not included in the mean calculations.
+        if(overlap > 1):
+            overlap = np.nan
+        measures[region_name] = overlap
     results[seg_ids[image]] = measures
 
 results = pd.DataFrame.from_dict(results, orient='index').astype('float')
