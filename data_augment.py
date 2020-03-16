@@ -190,7 +190,7 @@ class DataAugment(object):
                 elif (augmentation == 'Rician'):
                     if (random.random() > 0.5):
                         x = self.rician_noise(x)
-                elif(augmentation == 'Noise'):
+                elif(augmentation == 'Gaussian'):
                     if (random.random() > 0.5):
                         x = self.gaussian_noise(x)
                 elif(augmentation == 'Scale'):
