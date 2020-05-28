@@ -1,1 +1,3 @@
 Run train.py for training, segment.py for segmenting test scans (performing inference) and evaluate.py for evaluating the results of those segmentations. Basic code also written to perform survival prediction with a random forest classifier in surv_prediction folder.
+
+Old Code and might have many issues. I suggest changing the dataloading part to loading from hdf5 files instead of npz files, will significantly speed up training. Also performing inference on the full sized BraTS volumes might cause issues. I suggest resampling images to the given patch size, performing inference on those downsampled volumes and then resampling back to the original BraTS size.
