@@ -42,7 +42,7 @@ class Dataset(data.Dataset):
 
         if self.seg_provided:
             y = np.load(r"{}/{}_mask.npz".format(data_folder, data_id))['arr_0']
-            y = y[x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128]
+            y = y[x_orig: x_orig + 128, y_orig: y_orig + 128, z_orig: z_orig + 128].astype('long')
             return X, y
         else:
             return X
