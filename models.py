@@ -64,7 +64,7 @@ class Modified3DUNet(nn.Module):
 
         # Level 4 localization pathway
         self.conv_norm_lrelu_l4 = self.conv_norm_lrelu(self.base_n_filter * 2, self.base_n_filter * 2)
-        self.conv3d_l4 = nn.Conv3d(self.base_n_filter * 2, 1, kernel_size=1, stride=1, padding=0, bias=False)
+        self.conv3d_l4 = nn.Conv3d(self.base_n_filter * 2, self.n_classes, kernel_size=1, stride=1, padding=0, bias=False)
 
         self.ds2_1x1_conv3d = nn.Conv3d(self.base_n_filter * 8, self.n_classes, kernel_size=1, stride=1, padding=0, bias=False)
         self.ds3_1x1_conv3d = nn.Conv3d(self.base_n_filter * 4, self.n_classes, kernel_size=1, stride=1, padding=0, bias=False)
